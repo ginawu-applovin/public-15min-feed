@@ -1,0 +1,71 @@
+name: refresh feed
+
+# Deploys straight to Pages from an artifact rather than committing the JSON.
+# At a 5-minute cadence a commit-per-refresh would be ~288 commits a day and
+# would bury every real change in the history.
+on:
+  schedule:
+    # Every 5 minutes is the floor GitHub allows. Read the staleness note in
+    # README before trying to make this faster -- the limit is not the cron.
+    - cron: '*/5 * * * *'
+  workflow_dispatch:        # "Run workflow" in the Actions tab, for a manual refresh
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/fetch_feed.mjs'
+      - 'docs/index.html'
+      - '.github/workflows/refresh.yml'
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Let a running deploy finish; queue at most one behind it. Without this a slow
+# run and the next cron tick race each other onto Pages.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build the feed
+        env:
+          # Optional. Set it in Settings -> Secrets and variables -> Actions ->
+          # Variables to let the Google Sheet drive enable/disable and labels.
+          # Unset, the script's built-in catalog is used.
+          SHEET_ID: ${{ vars.SHEET_ID }}
+        run: node scripts/fetch_feed.mjs --out docs
+
+      - name: Check what was built
+        run: |
+          node -e '
+            const f = require("./docs/feed.json");
+            if (!f.markets.length) { console.error("empty feed"); process.exit(1); }
+            const late = f.markets.filter(m => Date.parse(m.close_time) <= Date.now());
+            console.log(`${f.markets.length} markets, expires ${f.expires_at}`);
+            if (f.skipped.length) console.log(`skipped: ${f.skipped.join(" ")}`);
+            // A window that has already closed means this run was delayed past
+            // the whole window. Worth seeing in the log, not worth failing on:
+            // publishing a slightly late feed beats publishing nothing.
+            if (late.length) console.log(`::warning::${late.length} market(s) already past close_time`);
+          '
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+
+      - id: deploy
+        uses: actions/deploy-pages@v4
