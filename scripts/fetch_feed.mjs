@@ -53,7 +53,6 @@ const CATALOG = {
 const NEAR_CLOSE_SECONDS = 120;
 
 const LANES = ['crypto', 'commodities', 'financials'];
-const LANE_TAB = { crypto:'CRYPTO', commodities:'COMMODITIES', financials:'FINANCIALS' };
 
 const args = Object.fromEntries(
   process.argv.slice(2).join(' ').split('--').filter(Boolean)
@@ -100,31 +99,47 @@ async function mapLimit(items, limit, fn) {
 }
 
 /* ---------------------------------------------------------------------------
- *  Optional sheet overrides. gviz honours link-sharing, so this needs no auth.
- *  A failure here is never fatal -- the built-in catalog carries on.
+ *  Optional control sheet.
+ *
+ *  One tab, one row per market, with an `enabled` column. gviz honours link
+ *  sharing, so this needs no auth and no credentials in the repo -- but the
+ *  sheet must be shared "Anyone with the link -> Viewer" or every read 401s.
+ *
+ *  A failure here is never fatal. If the sheet is unreachable, unshared or
+ *  malformed, the built-in CATALOG carries on and the feed still builds. The
+ *  sheet can turn markets off; it can never take the feed down.
  * ------------------------------------------------------------------------- */
 async function readSheetOverrides(sheetId) {
   const overrides = {};
-  for (const lane of LANES) {
-    const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=${LANE_TAB[lane]}`;
-    try {
-      const res = await fetch(url);
-      if (!res.ok) { console.warn(`  sheet ${LANE_TAB[lane]}: HTTP ${res.status}, ignoring`); continue; }
-      const grid = parseCsv(await res.text());
-      if (grid.length < 2) continue;
-      const head = grid[0];
-      for (const r of grid.slice(1)) {
-        const row = Object.fromEntries(head.map((h, i) => [h, r[i] ?? '']));
-        if (!row.root) continue;
-        overrides[row.root] = {
-          enabled: !/^(false|0)$/i.test(String(row.enabled).trim()),
-          label: row.label || undefined,
-          name: row.name || undefined
-        };
-      }
-    } catch (e) {
-      console.warn(`  sheet ${LANE_TAB[lane]}: ${e.message}, ignoring`);
+  // No sheet name: gviz returns the first tab, which is the only one here.
+  const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv`;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) {
+      console.warn(`  sheet: HTTP ${res.status} -- is it shared "Anyone with the link"? ignoring`);
+      return overrides;
     }
+    const text = await res.text();
+    if (text.trimStart().startsWith('<')) {
+      console.warn('  sheet: got HTML, not CSV -- almost certainly not link-shared. ignoring');
+      return overrides;
+    }
+    const grid = parseCsv(text);
+    if (grid.length < 2) return overrides;
+    const head = grid[0].map(h => h.trim().toLowerCase());
+    for (const r of grid.slice(1)) {
+      const row = Object.fromEntries(head.map((h, i) => [h, (r[i] ?? '').trim()]));
+      if (!row.root) continue;
+      overrides[row.root] = {
+        // Anything that isn't an explicit no counts as yes, so a blank cell or
+        // a stray value never silently drops a market.
+        enabled: !/^(false|0|no|n)$/i.test(row.enabled),
+        label: row.label || undefined,
+        name: row.name || undefined
+      };
+    }
+  } catch (e) {
+    console.warn(`  sheet: ${e.message}, ignoring`);
   }
   return overrides;
 }
@@ -271,6 +286,18 @@ async function main() {
     markets
   };
 
+  // Validate BEFORE writing. Writing first and exiting after would leave an
+  // empty feed.json on disk -- harmless in the workflow, where the non-zero
+  // exit stops the deploy, but it clobbers a good local copy and would publish
+  // an empty feed the moment anyone added continue-on-error or `|| true`.
+  if (!markets.length) {
+    console.error(`\nno markets built -- refusing to write. skipped: ${skipped.join(' ')}`);
+    // Expected twice an hour or so: every window closes on the same
+    // quarter-hour boundary, so near the close the guard excludes them all,
+    // and for a few seconds after it the API reports no current event at all.
+    process.exit(1);
+  }
+
   const { writeFile, mkdir } = await import('node:fs/promises');
   await mkdir(OUT_DIR, { recursive: true });
   await writeFile(`${OUT_DIR}/feed.json`, JSON.stringify(feed, null, 1));
@@ -284,8 +311,6 @@ async function main() {
   console.log(`\n${markets.length} markets  (${byLane})  in ${((Date.now() - t0) / 1000).toFixed(1)}s`);
   if (skipped.length) console.log(`skipped: ${skipped.join(' ')}`);
   console.log(`written to ${OUT_DIR}/feed.json + ${LANES.length} lane files`);
-
-  if (!markets.length) { console.error('\nno markets built — not publishing an empty feed'); process.exit(1); }
 }
 
 main().catch(e => { console.error('\nFAILED:', e.message); process.exit(1); });
