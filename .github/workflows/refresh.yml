@@ -75,6 +75,15 @@ jobs:
           # at a single commit instead of growing ~66 per run.
           publish() {
             local msg="$1"
+            # Never publish a tree without a feed. docs/*.json is gitignored and
+            # not committed to main, so a fresh checkout has none: an earlier
+            # version republished docs/ on a refused build and wiped feed.json
+            # off the branch, 404ing the live endpoint. Seeding from origin/feed
+            # below fixes the cause; this is the backstop.
+            if [ ! -f docs/feed.json ]; then
+              echo "::warning::no docs/feed.json -- refusing to publish an empty tree"
+              return 1
+            fi
             export GIT_INDEX_FILE="$RUNNER_TEMP/feed.index"
             rm -f "$GIT_INDEX_FILE"
             git read-tree --empty
@@ -95,6 +104,18 @@ jobs:
               > docs/status.json
           }
 
+          # Seed docs/ with whatever is already published, so a refused build has
+          # a real feed to republish alongside the fresh status. Without this
+          # the runner starts with no JSON at all -- docs/*.json is gitignored
+          # and lives only on the feed branch.
+          if git fetch -q --depth 1 origin feed 2>/dev/null; then
+            git checkout -q origin/feed -- docs 2>/dev/null \
+              && echo "seeded docs/ from the feed branch" \
+              || echo "feed branch has no docs/ yet"
+          else
+            echo "no feed branch yet -- first publish will create it"
+          fi
+
           PUBLISHED=0
           REFUSED=0
 
@@ -111,7 +132,7 @@ jobs:
               # docs/ still holds the last good feed, so this republishes it
               # together with a fresh status.json.
               REFUSED=$((REFUSED+1))
-              REASON=$(printf '%s' "$OUT" | grep -o 'refusing to publish -- [^"]*' | head -1 | cut -c25- | tr -d '"')
+              REASON=$(printf '%s' "$OUT" | sed -n 's/^refusing to publish -- //p' | head -1 | tr -d '"')
               status refused "${REASON:-unknown}"
               publish "status @ $(date -u +%Y-%m-%dT%H:%MZ)"
               echo "$(date -u +%H:%M:%SZ) refused #$REFUSED: ${REASON:-unknown}"
