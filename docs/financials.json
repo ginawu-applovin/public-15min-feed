@@ -1,0 +1,238 @@
+{
+ "schema_version": 1,
+ "source": "github_actions",
+ "fetched_at": "2026-10-30T14:31:49.331Z",
+ "expires_at": "2026-10-30T14:45:00.000Z",
+ "refresh_minutes": 5,
+ "roots_published": 27,
+ "total": 5,
+ "skipped": [
+  "10YRRATE:not_in_catalog",
+  "2YRRATE:not_in_catalog",
+  "30YRRATE:not_in_catalog",
+  "5YRRATE:not_in_catalog",
+  "CRYPTOLEAD:not_in_catalog"
+ ],
+ "markets": [
+  {
+   "id": "audusd-15-minutes-26oct301045",
+   "root": "AUDUSD",
+   "symbol": "AUDUSD",
+   "lane": "financials",
+   "type": "updown",
+   "label": "AUD/USD",
+   "name": "AUD/USD",
+   "unit": "fx",
+   "dp": 5,
+   "sdp": 4,
+   "open_time": "2026-10-30T14:30:00Z",
+   "close_time": "2026-10-30T14:45:00Z",
+   "spot": 0.70205,
+   "open": 0.70205,
+   "target": 0.70205,
+   "spot_source": "window_open",
+   "up_price": 0.66,
+   "down_price": 0.36,
+   "bid": 0.64,
+   "ask": 0.66,
+   "volume": 174.86,
+   "low_liquidity": false,
+   "history": [
+    {
+     "t": "2026-10-30T13:45:00Z",
+     "v": 0.70253
+    },
+    {
+     "t": "2026-10-30T14:00:00Z",
+     "v": 0.7026
+    },
+    {
+     "t": "2026-10-30T14:15:00Z",
+     "v": 0.70229
+    },
+    {
+     "t": "2026-10-30T14:30:00Z",
+     "v": 0.70171
+    }
+   ],
+   "eligible": true,
+   "exclusion_reason": ""
+  },
+  {
+   "id": "eurusd-15-minutes-26oct301045",
+   "root": "EURUSD",
+   "symbol": "EURUSD",
+   "lane": "financials",
+   "type": "updown",
+   "label": "EUR/USD",
+   "name": "EUR/USD",
+   "unit": "fx",
+   "dp": 5,
+   "sdp": 4,
+   "open_time": "2026-10-30T14:30:00Z",
+   "close_time": "2026-10-30T14:45:00Z",
+   "spot": 1.11445,
+   "open": 1.11445,
+   "target": 1.11445,
+   "spot_source": "window_open",
+   "up_price": 0.86,
+   "down_price": 0.15,
+   "bid": 0.85,
+   "ask": 0.86,
+   "volume": 1448.22,
+   "low_liquidity": false,
+   "history": [
+    {
+     "t": "2026-10-30T13:45:00Z",
+     "v": 1.11657
+    },
+    {
+     "t": "2026-10-30T14:00:00Z",
+     "v": 1.11552
+    },
+    {
+     "t": "2026-10-30T14:15:00Z",
+     "v": 1.11496
+    },
+    {
+     "t": "2026-10-30T14:30:00Z",
+     "v": 1.11444
+    }
+   ],
+   "eligible": true,
+   "exclusion_reason": ""
+  },
+  {
+   "id": "gbpusd-15-minutes-26oct301045",
+   "root": "GBPUSD",
+   "symbol": "GBPUSD",
+   "lane": "financials",
+   "type": "updown",
+   "label": "GBP/USD",
+   "name": "GBP/USD",
+   "unit": "fx",
+   "dp": 5,
+   "sdp": 4,
+   "open_time": "2026-10-30T14:30:00Z",
+   "close_time": "2026-10-30T14:45:00Z",
+   "spot": 1.33827,
+   "open": 1.33827,
+   "target": 1.33827,
+   "spot_source": "window_open",
+   "up_price": 0.8,
+   "down_price": 0.22,
+   "bid": 0.78,
+   "ask": 0.8,
+   "volume": 58.36,
+   "low_liquidity": false,
+   "history": [
+    {
+     "t": "2026-10-30T13:45:00Z",
+     "v": 1.33951
+    },
+    {
+     "t": "2026-10-30T14:00:00Z",
+     "v": 1.33902
+    },
+    {
+     "t": "2026-10-30T14:15:00Z",
+     "v": 1.33822
+    },
+    {
+     "t": "2026-10-30T14:30:00Z",
+     "v": 1.33893
+    }
+   ],
+   "eligible": true,
+   "exclusion_reason": ""
+  },
+  {
+   "id": "usdcad-15-minutes-26oct301045",
+   "root": "USDCAD",
+   "symbol": "USDCAD",
+   "lane": "financials",
+   "type": "updown",
+   "label": "USD/CAD",
+   "name": "USD/CAD",
+   "unit": "fx",
+   "dp": 5,
+   "sdp": 4,
+   "open_time": "2026-10-30T14:30:00Z",
+   "close_time": "2026-10-30T14:45:00Z",
+   "spot": 1.39712,
+   "open": 1.39712,
+   "target": 1.39712,
+   "spot_source": "window_open",
+   "up_price": 0.3,
+   "down_price": 0.72,
+   "bid": 0.28,
+   "ask": 0.3,
+   "volume": 139.94,
+   "low_liquidity": false,
+   "history": [
+    {
+     "t": "2026-10-30T13:45:00Z",
+     "v": 1.39656
+    },
+    {
+     "t": "2026-10-30T14:00:00Z",
+     "v": 1.39687
+    },
+    {
+     "t": "2026-10-30T14:15:00Z",
+     "v": 1.39676
+    },
+    {
+     "t": "2026-10-30T14:30:00Z",
+     "v": 1.39733
+    }
+   ],
+   "eligible": true,
+   "exclusion_reason": ""
+  },
+  {
+   "id": "usdjpy-15-minutes-26oct301045",
+   "root": "USDJPY",
+   "symbol": "USDJPY",
+   "lane": "financials",
+   "type": "updown",
+   "label": "USD/JPY",
+   "name": "USD/JPY",
+   "unit": "fx",
+   "dp": 3,
+   "sdp": 2,
+   "open_time": "2026-10-30T14:30:00Z",
+   "close_time": "2026-10-30T14:45:00Z",
+   "spot": 157.274,
+   "open": 157.274,
+   "target": 157.274,
+   "spot_source": "window_open",
+   "up_price": 0.42,
+   "down_price": 0.6,
+   "bid": 0.4,
+   "ask": 0.42,
+   "volume": 228.6,
+   "low_liquidity": false,
+   "history": [
+    {
+     "t": "2026-10-30T13:45:00Z",
+     "v": 157.324
+    },
+    {
+     "t": "2026-10-30T14:00:00Z",
+     "v": 157.194
+    },
+    {
+     "t": "2026-10-30T14:15:00Z",
+     "v": 157.297
+    },
+    {
+     "t": "2026-10-30T14:30:00Z",
+     "v": 157.168
+    }
+   ],
+   "eligible": true,
+   "exclusion_reason": ""
+  }
+ ]
+}

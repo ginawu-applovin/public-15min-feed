@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Public 15-Minute Markets Feed</title>
+<style>
+  :root{ --bg:#fff; --fg:#111; --mut:#667; --line:#e4e8ef; --accent:#00379A; --warn:#8a4b00; --warnbg:#fff6e8; }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){ --bg:#0f1115; --fg:#e8eaed; --mut:#99a; --line:#262a33; --accent:#8fb0ff; --warn:#ffcf8a; --warnbg:#2a1f0d; }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.6 ui-sans-serif,-apple-system,Segoe UI,Roboto,sans-serif;padding:40px 16px}
+  main{max-width:720px;margin:0 auto}
+  h1{font-size:22px;margin:0 0 4px} h2{font-size:15px;margin:28px 0 8px}
+  p{color:var(--mut);margin:0 0 14px}
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;background:color-mix(in srgb,var(--fg) 7%,transparent);padding:2px 5px;border-radius:4px}
+  a{color:var(--accent)}
+  table{border-collapse:collapse;width:100%;font-size:14px}
+  td,th{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--mut);font-weight:600}
+  .note{background:var(--warnbg);color:var(--warn);border-radius:8px;padding:12px 14px;font-size:14px;margin:0 0 18px}
+  #live{font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body>
+<main>
+  <h1>Public 15-Minute Markets — feed</h1>
+  <p>Static JSON, rebuilt by GitHub Actions and served from Pages. CORS is open,
+     so the playables can read it directly.</p>
+
+  <div class="note">
+    This file is rebuilt at most every 5 minutes, and scheduled runs can be
+    delayed. On a market that closes every 15 minutes, treat it as a recent
+    snapshot — not a live tick. <code>fetched_at</code> and
+    <code>expires_at</code> are in every response.
+  </div>
+
+  <h2>Endpoints</h2>
+  <table>
+    <tr><th>Path</th><th>What</th></tr>
+    <tr><td><code><a href="feed.json">feed.json</a></code></td><td>every market</td></tr>
+    <tr><td><code><a href="crypto.json">crypto.json</a></code></td><td>crypto lane only</td></tr>
+    <tr><td><code><a href="commodities.json">commodities.json</a></code></td><td>commodities lane only</td></tr>
+    <tr><td><code><a href="financials.json">financials.json</a></code></td><td>financials lane (FX)</td></tr>
+  </table>
+
+  <h2>Right now</h2>
+  <div id="live">loading…</div>
+</main>
+
+<script>
+fetch('feed.json', { cache: 'no-store' })
+  .then(r => r.json())
+  .then(f => {
+    const age = Math.round((Date.now() - Date.parse(f.fetched_at)) / 1000);
+    const expired = f.expires_at && Date.parse(f.expires_at) < Date.now();
+    const rows = f.markets.map(m =>
+      `<tr><td><b>${m.symbol}</b></td><td>${m.lane}</td>` +
+      `<td>${m.target}</td><td>${Math.round(m.up_price * 100)}&cent; up</td>` +
+      `<td>${new Date(m.close_time).toLocaleTimeString()}</td></tr>`).join('');
+    document.getElementById('live').innerHTML =
+      `<p>${f.total} markets · built ${age}s ago` +
+      (expired ? ' · <b>window has closed, waiting on the next run</b>' : '') + `</p>` +
+      `<table><tr><th>Symbol</th><th>Lane</th><th>Target</th><th>Market</th><th>Closes</th></tr>${rows}</table>`;
+  })
+  .catch(e => { document.getElementById('live').textContent = 'could not load feed.json: ' + e.message; });
+</script>
+</body>
+</html>
