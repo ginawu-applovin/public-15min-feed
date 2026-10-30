@@ -1,0 +1,789 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Public 15-Minute Markets Playable</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ------------------------------------------------------------------
+   Design: Figma "Creative Performance Sprints 2026" › Interactive (Light / Dark)
+   All type is Inter. Theme is set by CONFIG.THEME ('light' | 'dark').
+   ------------------------------------------------------------------ */
+:root{
+  --sans:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+  /* light (Figma › Interactive Light) */
+  --page:#E3EAF3;
+  --bg:linear-gradient(180deg,#FFFFFF 0%,#E3EAF3 100%);
+  --title:#000; --text:#000; --text-2:rgba(0,0,0,.55); --hl:#00379A;
+  --logo:#000; --logo-mark:#00379A;
+  --lbl-bg:#FFE0CA; --lbl:#FF5E3A;
+  --tab-line:rgba(120,120,120,.16); --tab-on-bg:#ECEEEF; --tab-on:#000; --tab:rgba(0,0,0,.55);
+  --card:#FFFFFF; --card-line:#F1F4F7; --badge:#EEF1F5; --divider:rgba(120,120,120,.12);
+  --up:#31A400; --down:#FF002B; --on-yn:#FFFFFF; --track:rgba(120,120,120,.1);
+  --spark:#3D66F5;
+  --dock-fade:rgba(255,255,255,.6); --more-bg:rgba(255,255,255,.25); --more-line:rgba(255,255,255,.5); --more-ico:#000;
+  --cta-bg:rgba(0,0,0,.95); --cta:#FFFFFF; --legal:#516880;
+  --dots-blend:hard-light;
+  --sheet:#FFFFFF; --scrim:rgba(0,0,0,.35); --tip-bg:rgba(20,20,20,.92); --tip:#FFFFFF;
+}
+:root[data-theme="dark"]{
+  /* dark (Figma › Interactive Dark) */
+  --page:#3A4C5D;   /* = bottom of the dark gradient, so no seam shows under the dock */
+  --bg:linear-gradient(180deg,rgba(0,0,0,.4) 50%,rgba(146,191,233,.4) 100%),#000;
+  --title:#FAFAFA; --text:#E5E5E5; --text-2:rgba(255,255,255,.6); --hl:#4D74FF;
+  --logo:#FFFFFF; --logo-mark:#FFFFFF;
+  --lbl-bg:#3A1000; --lbl:#FF6C3B;
+  --tab-line:rgba(144,144,144,.4); --tab-on-bg:rgba(144,144,144,.3); --tab-on:#E5E5E5; --tab:rgba(255,255,255,.6);
+  --card:rgba(255,255,255,.05); --card-line:rgba(255,255,255,.15); --badge:rgba(255,255,255,.08); --divider:rgba(255,255,255,.08);
+  --up:#80CE00; --down:#FF4646; --on-yn:#0F0F0F; --track:rgba(144,144,144,.3);
+  --spark:#4D74FF;
+  --dock-fade:rgba(15,15,15,.6); --more-bg:rgba(255,255,255,.25); --more-line:rgba(255,255,255,.08); --more-ico:#FFFFFF;
+  --cta-bg:rgba(255,255,255,.95); --cta:#0F0F0F; --legal:#DCE2EA;
+  --dots-blend:normal;
+  --sheet:#14171C; --scrim:rgba(0,0,0,.6); --tip-bg:rgba(232,232,232,.96); --tip:#111111;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+html,body{margin:0;padding:0;height:100%;background:var(--page);overflow:hidden}
+body{display:flex;align-items:center;justify-content:center}
+
+#stage{
+  width:1080px;height:1920px;position:relative;flex:0 0 auto;overflow:hidden;
+  color:var(--text);font-family:var(--sans);background:var(--bg);
+  font-feature-settings:"lnum" 1,"tnum" 1;-webkit-font-smoothing:antialiased;
+  padding:74px 73px 0;display:flex;flex-direction:column;
+}
+/* dot texture — Figma background vectors (dots.svg), placed as in the Interactive frames */
+/* dark: the Figma's overlay blend vanishes on black, so the dots are drawn in a light blue-grey instead */
+:root[data-theme="dark"] #dots path{stroke:#AFD0E8;opacity:.42}
+#stage>#dots{position:absolute;left:0;top:0;width:1080px;height:1920px;pointer-events:none;z-index:0;mix-blend-mode:var(--dots-blend)}
+#stage>*{position:relative;z-index:1}
+
+/* ---------- header ---------- */
+#hdr{flex:0 0 auto}
+#logo{display:block;height:57px;width:auto;margin-left:12px;color:var(--logo)}
+#logo .mark{fill:var(--logo-mark)}
+#cdl{display:inline-flex;align-items:center;flex:0 0 auto;padding:8.33px 16.67px;border-radius:999px;
+  background:var(--lbl-bg);color:var(--lbl);font:600 27.78px/1.2 var(--sans);font-variant-numeric:tabular-nums}
+#title{margin:61px 0 0;font:500 80px/1.1 var(--sans);letter-spacing:-2px;color:var(--title)}
+#title .hl{color:var(--hl)}
+
+/* ---------- tabs ---------- */
+#right{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
+#tabrow{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-top:16px;flex:0 0 auto}
+#tabs{display:flex;gap:17.2px}
+.tab{border:2.15px solid var(--tab-line);border-radius:17.2px;padding:17.2px 25.8px;
+  font:600 30.14px/1.4 var(--sans);color:var(--tab);cursor:pointer;white-space:nowrap;transition:background .15s,color .15s}
+.tab.on{background:var(--tab-on-bg);color:var(--tab-on)}
+
+/* ---------- market list (scrolls under the dock) ---------- */
+#cards{flex:1 1 auto;min-height:0;overflow-y:auto;margin:38px -73px 0;padding:0 73px 400px;
+  scrollbar-width:none;-webkit-overflow-scrolling:touch}
+#cards::-webkit-scrollbar{display:none}
+.card{position:relative;background:var(--card);border:2.6px solid var(--card-line);border-radius:22px;
+  padding:42px;display:flex;flex-direction:column;gap:33px}
+.card+.card{margin-top:24px}
+.ch{display:flex;align-items:center;gap:23px}
+.ico{flex:0 0 60px;width:60px;height:60px;border-radius:50%;display:flex;align-items:center;justify-content:center;overflow:hidden;
+  background:var(--badge);color:var(--text-2);font:700 28px/1 var(--sans);letter-spacing:-.5px}
+.ico.sm{font-size:20px} .ico.xs{font-size:16px}
+.card h3{margin:0;flex:1;min-width:0;font:600 49.3px/64.87px var(--sans);color:var(--text)}
+.card h3 b{color:var(--hl);font-weight:600}
+.cd{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:53px}
+.cd .now{font:600 31.14px/1.2 var(--sans);color:var(--text-2);font-variant-numeric:tabular-nums;white-space:pre;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.cd svg{width:194px;height:48px;flex:0 0 auto;overflow:visible}
+.cd path{stroke:var(--spark)}
+
+.bar{display:flex;gap:10.38px;height:5.19px}
+.bar i{display:block;height:100%;border-radius:10.38px;transition:flex-basis .6s ease}
+.bar .y{background:var(--up)} .bar .n{background:var(--down);flex:1 1 0}
+
+.btns{display:flex;gap:31.14px}
+.chip{flex:1 1 0;border-radius:999px;padding:31.14px 36px;text-align:center;cursor:pointer;white-space:nowrap;
+  font:600 36px/1.4 var(--sans);color:var(--on-yn);font-variant-numeric:tabular-nums;transition:transform .1s}
+.chip.y{background:var(--up)} .chip.n{background:var(--down)}
+.chip:active{transform:scale(.97)}
+.flash{animation:flash .6s}
+@keyframes flash{0%{filter:brightness(1.18)}100%{filter:none}}
+
+/* strike ladders (Commodities): "$4,030 or above" rows */
+.rows{display:flex;flex-direction:column}
+.row{display:flex;align-items:center;gap:28px}
+.row+.row{border-top:2px solid var(--divider);margin-top:30px;padding-top:30px}
+.row .l{flex:1;min-width:0}
+.row .k{font:600 36px/1.2 var(--sans);color:var(--text);margin-bottom:18px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.row .btns{flex:0 0 auto;gap:16px}
+.row .chip{flex:0 0 auto;min-width:176px;padding:22px 26px;font-size:32px}
+
+/* ---------- dock (Figma › Dock 3.0) ---------- */
+#foot{position:absolute;left:0;right:0;bottom:-4px;z-index:5;padding:60.9px 60.9px 64.9px;display:flex;flex-direction:column;align-items:center;gap:12px}
+#foot::before{content:"";position:absolute;inset:0;pointer-events:none;z-index:-1;
+  background:linear-gradient(180deg,rgba(255,255,255,0) 0%,var(--dock-fade) 70%);
+  -webkit-backdrop-filter:blur(5.5px);backdrop-filter:blur(5.5px);
+  -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 30%);mask-image:linear-gradient(180deg,transparent 0,#000 30%)}
+#more{width:98.6px;height:98.6px;border-radius:50%;background:var(--more-bg);border:2.6px solid var(--more-line);
+  -webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;transition:opacity .2s;animation:bob 1.6s ease-in-out infinite}
+#more svg{width:31px;height:31px;stroke:var(--more-ico)}
+#more.off{opacity:0;pointer-events:none}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(6px)}}
+#cta{display:block;width:100%;border:0;border-radius:999px;background:var(--cta-bg);color:var(--cta);
+  font:600 38.77px/1.4 var(--sans);padding:44.3px 60.9px;cursor:pointer;transition:transform .1s}
+#cta:active,#buy:active{transform:scale(.98)}
+#legal{width:895px;max-width:100%;font:400 20px/1.4 var(--sans);color:var(--legal);text-align:center}
+
+/* ---------- order sheet ---------- */
+#scrim{position:absolute;inset:0;background:var(--scrim);opacity:0;pointer-events:none;transition:opacity .25s;z-index:20}
+#scrim.on{opacity:1;pointer-events:auto}
+#sheet{position:absolute;left:0;right:0;bottom:0;z-index:21;background:var(--sheet);border-top:2.6px solid var(--card-line);
+  border-radius:48px 48px 0 0;padding:28px 73px 56px;transform:translateY(105%);transition:transform .32s cubic-bezier(.2,.8,.2,1);color:var(--text)}
+#sheet.on{transform:none}
+.grab{width:96px;height:10px;border-radius:99px;background:var(--divider);margin:0 auto 34px}
+#x{position:absolute;right:48px;top:40px;width:76px;height:76px;border-radius:50%;border:2.15px solid var(--tab-line);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text-2);font:400 44px/1 var(--sans)}
+.s-sub{font:600 30px/1.3 var(--sans);color:var(--text-2);margin-bottom:12px;padding-right:100px}
+.s-sub b{color:var(--lbl)}
+.s-title{font:600 54px/1.1 var(--sans);margin-bottom:36px;font-variant-numeric:tabular-nums}
+.sides{display:flex;gap:22px;margin-bottom:34px}
+.side{flex:1;border:2.6px solid var(--tab-line);border-radius:28px;padding:30px 20px;text-align:center;cursor:pointer;transition:all .15s}
+.side .n{font:600 32px/1 var(--sans);color:var(--text-2);margin-bottom:14px}
+.side .p{font:600 64px/1 var(--sans);font-variant-numeric:tabular-nums}
+.side.on[data-side=yes]{background:var(--up);border-color:var(--up);color:var(--on-yn)}
+.side.on[data-side=no]{background:var(--down);border-color:var(--down);color:var(--on-yn)}
+.side.on .n{color:var(--on-yn)}
+.lbl{font:600 28px/1 var(--sans);color:var(--text-2);margin-bottom:18px}
+.amts{display:flex;gap:16px;margin-bottom:34px}
+.amt{flex:1;border:2.15px solid var(--tab-line);border-radius:17.2px;padding:24px 0;text-align:center;
+  font:600 36px/1 var(--sans);cursor:pointer;transition:all .15s;color:var(--tab)}
+.amt.on{background:var(--tab-on-bg);color:var(--tab-on)}
+.sum{border:2.6px solid var(--card-line);border-radius:22px;padding:16px 34px;margin-bottom:34px}
+.sum .r{display:flex;justify-content:space-between;padding:18px 0;font:600 32px/1 var(--sans);font-variant-numeric:tabular-nums}
+.sum .r+.r{border-top:2px solid var(--divider)}
+.sum .r span{color:var(--text-2);font-weight:500}
+.sum .r.big b{font-size:44px;color:var(--hl)}
+#buy{display:block;width:100%;border:0;border-radius:999px;background:var(--cta-bg);color:var(--cta);
+  font:600 38.77px/1.4 var(--sans);padding:40px;cursor:pointer;transition:transform .1s}
+.fine{margin-top:22px;text-align:center;font:400 22px/1.4 var(--sans);color:var(--text-2)}
+
+/* ---------- tap hint ---------- */
+.hint{position:absolute;left:0;top:0;width:0;height:0;pointer-events:none;z-index:6}
+.hint .hand{position:absolute;left:-40px;top:0;font-size:96px;line-height:1;
+  filter:drop-shadow(0 8px 14px rgba(0,0,0,.45));animation:tap 1.3s ease-in-out infinite}
+@keyframes tap{0%,100%{transform:translateY(22px)}45%{transform:translateY(0) scale(.94)}}
+.hint .tip{position:absolute;top:122px;transform:translateX(-50%);white-space:nowrap;
+  background:var(--tip-bg);color:var(--tip);font:600 40px/1 var(--sans);padding:26px 46px;border-radius:999px;
+  box-shadow:0 10px 30px rgba(0,0,0,.25)}
+
+/* ---------- landscape (AppLovin requires both orientations) ---------- */
+#stage.ls{display:grid;grid-template-columns:42% 1fr;grid-template-rows:auto 1fr;column-gap:80px;padding:60px 80px 0}
+#stage.ls #hdr{grid-area:1/1/2/2}
+#stage.ls #right{grid-area:1/2/3/3;min-height:0}
+#stage.ls #tabrow{margin-top:0}
+#stage.ls #cards{margin:28px -80px 0 0;padding:0 80px 60px 0}
+#stage.ls #title{font-size:72px}
+#stage.ls #foot{position:static;grid-area:2/1/3/2;align-self:end;padding:0 0 44px}
+#stage.ls #foot::before,#stage.ls #more{display:none}
+#stage.ls .card{padding:30px 36px;gap:22px}
+#stage.ls .card h3{font-size:42px;line-height:54px}
+#stage.ls .chip{padding:22px 30px;font-size:32px}
+#stage.ls .row .chip{padding:16px 22px;font-size:28px;min-width:150px}
+#stage.ls #sheet{left:auto;width:1000px;right:0;top:0;bottom:0;border-radius:48px 0 0 48px;border-top:0;border-left:2.6px solid var(--card-line);
+  padding:44px 64px 36px;transform:translateX(105%)}
+#stage.ls #sheet.on{transform:none}
+#stage.ls .grab{display:none} #stage.ls #x{top:36px}
+#stage.ls .s-title{font-size:46px;margin-bottom:24px}
+#stage.ls .sides,#stage.ls .amts,#stage.ls .sum{margin-bottom:22px}
+#stage.ls .side{padding:20px} #stage.ls .side .p{font-size:52px}
+#stage.ls .amt{padding:18px 0} #stage.ls .sum .r{padding:12px 0}
+#stage.ls #buy{padding:30px} #stage.ls .fine{margin-top:14px}
+</style>
+</head>
+<body>
+<div id="stage">
+  <svg id="dots" viewBox="0 0 1080 1920" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><path d="M815.7 1432.7h0M837.7 1432.7h0M903.7 1432.7h0M925.7 1432.7h0M947.6 1432.7h0M969.6 1432.7h0M991.6 1432.7h0M1013.6 1432.7h0M1035.6 1432.7h0M1057.6 1432.7h0M1079.6 1432.7h0M815.7 1454.7h0M837.7 1454.7h0M859.7 1454.7h0M881.7 1454.7h0M903.7 1454.7h0M925.7 1454.7h0M947.6 1454.7h0M969.6 1454.7h0M991.6 1454.7h0M1013.6 1454.7h0M1035.6 1454.7h0M1057.6 1454.7h0M1079.6 1454.7h0M837.7 1476.7h0M859.7 1476.7h0M881.7 1476.7h0M903.7 1476.7h0M925.7 1476.7h0M947.6 1476.7h0M969.6 1476.7h0M991.6 1476.7h0M1013.6 1476.7h0M1035.6 1476.7h0M1057.6 1476.7h0M1079.6 1476.7h0M859.7 1498.7h0M881.7 1498.7h0M903.7 1498.7h0M925.7 1498.7h0M947.6 1498.7h0M969.6 1498.7h0M991.6 1498.7h0M1013.6 1498.7h0M1035.6 1498.7h0M1057.6 1498.7h0M1079.6 1498.7h0M859.7 1520.7h0M881.7 1520.7h0M903.7 1520.7h0M925.7 1520.7h0M947.6 1520.7h0M969.6 1520.7h0M991.6 1520.7h0M1013.6 1520.7h0M1035.6 1520.7h0M1057.6 1520.7h0M1079.6 1520.7h0M859.7 1542.7h0M881.7 1542.7h0M903.7 1542.7h0M925.7 1542.7h0M947.6 1542.7h0M969.6 1542.7h0M991.6 1542.7h0M1013.6 1542.7h0M1035.6 1542.7h0M1057.6 1542.7h0M1079.6 1542.7h0M859.7 1564.7h0M881.7 1564.7h0M903.7 1564.7h0M925.7 1564.7h0M947.6 1564.7h0M969.6 1564.7h0M991.6 1564.7h0M1013.6 1564.7h0M1035.6 1564.7h0M1057.6 1564.7h0M1079.6 1564.7h0M859.7 1586.6h0M881.7 1586.6h0M903.7 1586.6h0M925.7 1586.6h0M947.6 1586.6h0M969.6 1586.6h0M991.6 1586.6h0M1013.6 1586.6h0M1035.6 1586.6h0M1057.6 1586.6h0M1079.6 1586.6h0M859.7 1608.6h0M881.7 1608.6h0M903.7 1608.6h0M925.7 1608.6h0M947.6 1608.6h0M969.6 1608.6h0M991.6 1608.6h0M1013.6 1608.6h0M1035.6 1608.6h0M1057.6 1608.6h0M1079.6 1608.6h0M859.7 1630.6h0M881.7 1630.6h0M903.7 1630.6h0M925.7 1630.6h0M947.6 1630.6h0M969.6 1630.6h0M991.6 1630.6h0M1013.6 1630.6h0M1035.6 1630.6h0M1057.6 1630.6h0M1079.6 1630.6h0M859.7 1652.6h0M881.7 1652.6h0M903.7 1652.6h0M925.7 1652.6h0M947.6 1652.6h0M969.6 1652.6h0M991.6 1652.6h0M1013.6 1652.6h0M1035.6 1652.6h0M1057.6 1652.6h0M1079.6 1652.6h0M815.7 1410.7h0M837.7 1410.7h0M925.7 1410.7h0M969.6 1410.7h0M991.6 1410.7h0M1013.6 1410.7h0M1035.6 1410.7h0M1057.6 1410.7h0M1079.6 1410.7h0M815.7 1388.7h0M837.7 1388.7h0M925.7 1388.7h0M969.6 1388.7h0M991.6 1388.7h0M1013.6 1388.7h0M1035.6 1388.7h0M1057.6 1388.7h0M1079.6 1388.7h0M815.7 1366.8h0M837.7 1366.8h0M925.7 1366.8h0M969.6 1366.8h0M991.6 1366.8h0M1013.6 1366.8h0M1035.6 1366.8h0M1057.6 1366.8h0M1079.6 1366.8h0M815.7 1344.8h0M925.7 1344.8h0M969.6 1344.8h0M991.6 1344.8h0M1013.6 1344.8h0M1035.6 1344.8h0M1057.6 1344.8h0M1079.6 1344.8h0M815.7 1322.8h0M925.7 1322.8h0M969.6 1322.8h0M991.6 1322.8h0M1013.6 1322.8h0M1035.6 1322.8h0M1057.6 1322.8h0M1079.6 1322.8h0M815.7 1300.8h0M837.7 1300.8h0M925.7 1300.8h0M969.6 1300.8h0M991.6 1300.8h0M1013.6 1300.8h0M1035.6 1300.8h0M1057.6 1300.8h0M1079.6 1300.8h0M815.7 1278.8h0M837.7 1278.8h0M903.7 1278.8h0M925.7 1278.8h0M969.6 1278.8h0M991.6 1278.8h0M1013.6 1278.8h0M1035.6 1278.8h0M1057.6 1278.8h0M1079.6 1278.8h0M815.7 1256.8h0M837.7 1256.8h0M903.7 1256.8h0M925.7 1256.8h0M969.6 1256.8h0M991.6 1256.8h0M1013.6 1256.8h0M1035.6 1256.8h0M1057.6 1256.8h0M1079.6 1256.8h0M815.7 1234.8h0M837.7 1234.8h0M903.7 1234.8h0M925.7 1234.8h0M969.6 1234.8h0M991.6 1234.8h0M1013.6 1234.8h0M1035.6 1234.8h0M1057.6 1234.8h0M1079.6 1234.8h0M815.7 1212.8h0M837.7 1212.8h0M903.7 1212.8h0M925.7 1212.8h0M969.6 1212.8h0M991.6 1212.8h0M1013.6 1212.8h0M1035.6 1212.8h0M1057.6 1212.8h0M1079.6 1212.8h0M815.7 1190.9h0M837.7 1190.9h0M903.7 1190.9h0M925.7 1190.9h0M991.6 1190.9h0M1013.6 1190.9h0M1035.6 1190.9h0M1057.6 1190.9h0M1079.6 1190.9h0M815.7 1168.9h0M837.7 1168.9h0M903.7 1168.9h0M925.7 1168.9h0M991.6 1168.9h0M1013.6 1168.9h0M1035.6 1168.9h0M1057.6 1168.9h0M1079.6 1168.9h0M837.7 1146.9h0M903.7 1146.9h0M925.7 1146.9h0M991.6 1146.9h0M1013.6 1146.9h0M1035.6 1146.9h0M1057.6 1146.9h0M1079.6 1146.9h0M837.7 1124.9h0M903.7 1124.9h0M925.7 1124.9h0M991.6 1124.9h0M1013.6 1124.9h0M1035.6 1124.9h0M1057.6 1124.9h0M1079.6 1124.9h0M837.7 1102.9h0M903.7 1102.9h0M925.7 1102.9h0M991.6 1102.9h0M1013.6 1102.9h0M1035.6 1102.9h0M1057.6 1102.9h0M1079.6 1102.9h0M837.7 1080.9h0M903.7 1080.9h0M925.7 1080.9h0M991.6 1080.9h0M1013.6 1080.9h0M1035.6 1080.9h0M1057.6 1080.9h0M1079.6 1080.9h0M925.7 1058.9h0M947.6 1058.9h0M991.6 1058.9h0M1013.6 1058.9h0M1035.6 1058.9h0M1057.6 1058.9h0M1079.6 1058.9h0M925.7 1036.9h0M947.6 1036.9h0M991.6 1036.9h0M1013.6 1036.9h0M1035.6 1036.9h0M1057.6 1036.9h0M1079.6 1036.9h0M925.7 1015.0h0M947.6 1015.0h0M991.6 1015.0h0M1013.6 1015.0h0M1035.6 1015.0h0M1057.6 1015.0h0M1079.6 1015.0h0M925.7 993.0h0M947.6 993.0h0M991.6 993.0h0M1013.6 993.0h0M1035.6 993.0h0M1057.6 993.0h0M1079.6 993.0h0M815.7 971.0h0M837.7 971.0h0M859.7 971.0h0M903.7 971.0h0M925.7 971.0h0M947.6 971.0h0M969.6 971.0h0M991.6 971.0h0M1013.6 971.0h0M1035.6 971.0h0M1057.6 971.0h0M1079.6 971.0h0M815.7 949.0h0M837.7 949.0h0M859.7 949.0h0M991.6 949.0h0M1013.6 949.0h0M1035.6 949.0h0M1057.6 949.0h0M1079.6 949.0h0M815.7 927.0h0M837.7 927.0h0M859.7 927.0h0M991.6 927.0h0M1057.6 927.0h0M1079.6 927.0h0M815.7 905.0h0M837.7 905.0h0M859.7 905.0h0M903.7 905.0h0M925.7 905.0h0M947.6 905.0h0M969.6 905.0h0M991.6 905.0h0M1057.6 905.0h0M1079.6 905.0h0M815.7 883.0h0M837.7 883.0h0M859.7 883.0h0M903.7 883.0h0M925.7 883.0h0M947.6 883.0h0M969.6 883.0h0M991.6 883.0h0M1013.6 883.0h0M1057.6 883.0h0M1079.6 883.0h0M248.4 1525.1h0M248.4 1547.1h0M248.4 1613.0h0M248.4 1635.0h0M248.4 1657.0h0M248.4 1679.0h0M248.4 1701.0h0M248.4 1723.0h0M248.4 1745.0h0M248.4 1766.9h0M248.4 1788.9h0M248.4 1810.9h0M248.4 1832.9h0M248.4 1854.9h0M248.4 1876.9h0M248.4 1898.9h0M226.4 1525.1h0M226.4 1547.1h0M226.4 1569.0h0M226.4 1591.0h0M226.4 1613.0h0M226.4 1635.0h0M226.4 1657.0h0M226.4 1679.0h0M226.4 1701.0h0M226.4 1723.0h0M226.4 1745.0h0M226.4 1766.9h0M226.4 1788.9h0M226.4 1810.9h0M226.4 1832.9h0M226.4 1854.9h0M226.4 1876.9h0M226.4 1898.9h0M204.4 1547.1h0M204.4 1569.0h0M204.4 1591.0h0M204.4 1613.0h0M204.4 1635.0h0M204.4 1657.0h0M204.4 1679.0h0M204.4 1701.0h0M204.4 1723.0h0M204.4 1745.0h0M204.4 1766.9h0M204.4 1788.9h0M204.4 1810.9h0M204.4 1832.9h0M204.4 1854.9h0M204.4 1876.9h0M204.4 1898.9h0M182.4 1569.0h0M182.4 1591.0h0M182.4 1613.0h0M182.4 1635.0h0M182.4 1657.0h0M182.4 1679.0h0M182.4 1701.0h0M182.4 1723.0h0M182.4 1745.0h0M182.4 1766.9h0M182.4 1788.9h0M182.4 1810.9h0M182.4 1832.9h0M182.4 1854.9h0M182.4 1876.9h0M182.4 1898.9h0M160.5 1569.0h0M160.5 1591.0h0M160.5 1613.0h0M160.5 1635.0h0M160.5 1657.0h0M160.5 1679.0h0M160.5 1701.0h0M160.5 1723.0h0M160.5 1745.0h0M160.5 1766.9h0M160.5 1788.9h0M160.5 1810.9h0M160.5 1832.9h0M160.5 1854.9h0M160.5 1876.9h0M160.5 1898.9h0M138.5 1569.0h0M138.5 1591.0h0M138.5 1613.0h0M138.5 1635.0h0M138.5 1657.0h0M138.5 1679.0h0M138.5 1701.0h0M138.5 1723.0h0M138.5 1745.0h0M138.5 1766.9h0M138.5 1788.9h0M138.5 1810.9h0M138.5 1832.9h0M138.5 1854.9h0M138.5 1876.9h0M138.5 1898.9h0M116.5 1569.0h0M116.5 1591.0h0M116.5 1613.0h0M116.5 1635.0h0M116.5 1657.0h0M116.5 1679.0h0M116.5 1701.0h0M116.5 1723.0h0M116.5 1745.0h0M116.5 1766.9h0M116.5 1788.9h0M116.5 1810.9h0M116.5 1832.9h0M116.5 1854.9h0M116.5 1876.9h0M116.5 1898.9h0M94.5 1569.0h0M94.5 1591.0h0M94.5 1613.0h0M94.5 1635.0h0M94.5 1657.0h0M94.5 1679.0h0M94.5 1701.0h0M94.5 1723.0h0M94.5 1745.0h0M94.5 1766.9h0M94.5 1788.9h0M94.5 1810.9h0M94.5 1832.9h0M94.5 1854.9h0M94.5 1876.9h0M94.5 1898.9h0M72.5 1569.0h0M72.5 1591.0h0M72.5 1613.0h0M72.5 1635.0h0M72.5 1657.0h0M72.5 1679.0h0M72.5 1701.0h0M72.5 1723.0h0M72.5 1745.0h0M72.5 1766.9h0M72.5 1788.9h0M72.5 1810.9h0M72.5 1832.9h0M72.5 1854.9h0M72.5 1876.9h0M72.5 1898.9h0M50.5 1569.0h0M50.5 1591.0h0M50.5 1613.0h0M50.5 1635.0h0M50.5 1657.0h0M50.5 1679.0h0M50.5 1701.0h0M50.5 1723.0h0M50.5 1745.0h0M50.5 1766.9h0M50.5 1788.9h0M50.5 1810.9h0M50.5 1832.9h0M50.5 1854.9h0M50.5 1876.9h0M50.5 1898.9h0M28.5 1569.0h0M28.5 1591.0h0M28.5 1613.0h0M28.5 1635.0h0M28.5 1657.0h0M28.5 1679.0h0M28.5 1701.0h0M28.5 1723.0h0M28.5 1745.0h0M28.5 1766.9h0M28.5 1788.9h0M28.5 1810.9h0M28.5 1832.9h0M28.5 1854.9h0M28.5 1876.9h0M28.5 1898.9h0M270.4 1525.1h0M270.4 1547.1h0M270.4 1635.0h0M270.4 1679.0h0M270.4 1701.0h0M270.4 1723.0h0M270.4 1745.0h0M270.4 1766.9h0M270.4 1788.9h0M270.4 1810.9h0M270.4 1832.9h0M270.4 1854.9h0M270.4 1876.9h0M270.4 1898.9h0M292.4 1525.1h0M292.4 1547.1h0M292.4 1635.0h0M292.4 1679.0h0M292.4 1701.0h0M292.4 1723.0h0M292.4 1745.0h0M292.4 1766.9h0M292.4 1788.9h0M292.4 1810.9h0M292.4 1832.9h0M292.4 1854.9h0M292.4 1876.9h0M292.4 1898.9h0M314.4 1525.1h0M314.4 1547.1h0M314.4 1635.0h0M314.4 1679.0h0M314.4 1701.0h0M314.4 1723.0h0M314.4 1745.0h0M314.4 1766.9h0M314.4 1788.9h0M314.4 1810.9h0M314.4 1832.9h0M314.4 1854.9h0M314.4 1876.9h0M314.4 1898.9h0M336.4 1525.1h0M336.4 1635.0h0M336.4 1679.0h0M336.4 1701.0h0M336.4 1723.0h0M336.4 1745.0h0M336.4 1766.9h0M336.4 1788.9h0M336.4 1810.9h0M336.4 1832.9h0M336.4 1854.9h0M336.4 1876.9h0M336.4 1898.9h0M358.4 1525.1h0M358.4 1635.0h0M358.4 1679.0h0M358.4 1701.0h0M358.4 1723.0h0M358.4 1745.0h0M358.4 1766.9h0M358.4 1788.9h0M358.4 1810.9h0M358.4 1832.9h0M358.4 1854.9h0M358.4 1876.9h0M358.4 1898.9h0M380.4 1525.1h0M380.4 1547.1h0M380.4 1635.0h0M380.4 1679.0h0M380.4 1701.0h0M380.4 1723.0h0M380.4 1745.0h0M380.4 1766.9h0M380.4 1788.9h0M380.4 1810.9h0M380.4 1832.9h0M380.4 1854.9h0M380.4 1876.9h0M380.4 1898.9h0M402.3 1525.1h0M402.3 1547.1h0M402.3 1613.0h0M402.3 1635.0h0M402.3 1679.0h0M402.3 1701.0h0M402.3 1723.0h0M402.3 1745.0h0M402.3 1766.9h0M402.3 1788.9h0M402.3 1810.9h0M402.3 1832.9h0M402.3 1854.9h0M402.3 1876.9h0M402.3 1898.9h0M424.3 1525.1h0M424.3 1547.1h0M424.3 1613.0h0M424.3 1635.0h0M424.3 1679.0h0M424.3 1701.0h0M424.3 1723.0h0M424.3 1745.0h0M424.3 1766.9h0M424.3 1788.9h0M424.3 1810.9h0M424.3 1832.9h0M424.3 1854.9h0M424.3 1876.9h0M424.3 1898.9h0M446.3 1525.1h0M446.3 1547.1h0M446.3 1613.0h0M446.3 1635.0h0M446.3 1679.0h0M446.3 1701.0h0M446.3 1723.0h0M446.3 1745.0h0M446.3 1766.9h0M446.3 1788.9h0M446.3 1810.9h0M446.3 1832.9h0M446.3 1854.9h0M446.3 1876.9h0M446.3 1898.9h0M468.3 1525.1h0M468.3 1547.1h0M468.3 1613.0h0M468.3 1635.0h0M468.3 1679.0h0M468.3 1701.0h0M468.3 1723.0h0M468.3 1745.0h0M468.3 1766.9h0M468.3 1788.9h0M468.3 1810.9h0M468.3 1832.9h0M468.3 1854.9h0M468.3 1876.9h0M468.3 1898.9h0M490.3 1525.1h0M490.3 1547.1h0M490.3 1613.0h0M490.3 1635.0h0M490.3 1701.0h0M490.3 1723.0h0M490.3 1745.0h0M490.3 1766.9h0M490.3 1788.9h0M490.3 1810.9h0M490.3 1832.9h0M490.3 1854.9h0M490.3 1876.9h0M490.3 1898.9h0M512.3 1525.1h0M512.3 1547.1h0M512.3 1613.0h0M512.3 1635.0h0M512.3 1701.0h0M512.3 1723.0h0M512.3 1745.0h0M512.3 1766.9h0M512.3 1788.9h0M512.3 1810.9h0M512.3 1832.9h0M512.3 1854.9h0M512.3 1876.9h0M512.3 1898.9h0M534.3 1547.1h0M534.3 1613.0h0M534.3 1635.0h0M534.3 1701.0h0M534.3 1723.0h0M534.3 1745.0h0M534.3 1766.9h0M534.3 1788.9h0M534.3 1810.9h0M534.3 1832.9h0M534.3 1854.9h0M534.3 1876.9h0M534.3 1898.9h0M556.2 1547.1h0M556.2 1613.0h0M556.2 1635.0h0M556.2 1701.0h0M556.2 1723.0h0M556.2 1745.0h0M556.2 1766.9h0M556.2 1788.9h0M556.2 1810.9h0M556.2 1832.9h0M556.2 1854.9h0M556.2 1876.9h0M556.2 1898.9h0M578.2 1547.1h0M578.2 1613.0h0M578.2 1635.0h0M578.2 1701.0h0M578.2 1723.0h0M578.2 1745.0h0M578.2 1766.9h0M578.2 1788.9h0M578.2 1810.9h0M578.2 1832.9h0M578.2 1854.9h0M578.2 1876.9h0M578.2 1898.9h0M600.2 1547.1h0M600.2 1613.0h0M600.2 1635.0h0M600.2 1701.0h0M600.2 1723.0h0M600.2 1745.0h0M600.2 1766.9h0M600.2 1788.9h0M600.2 1810.9h0M600.2 1832.9h0M600.2 1854.9h0M600.2 1876.9h0M600.2 1898.9h0M622.2 1635.0h0M622.2 1657.0h0M622.2 1701.0h0M622.2 1723.0h0M622.2 1745.0h0M622.2 1766.9h0M622.2 1788.9h0M622.2 1810.9h0M622.2 1832.9h0M622.2 1854.9h0M622.2 1876.9h0M622.2 1898.9h0M644.2 1635.0h0M644.2 1657.0h0M644.2 1701.0h0M644.2 1723.0h0M644.2 1745.0h0M644.2 1766.9h0M644.2 1788.9h0M644.2 1810.9h0M644.2 1832.9h0M644.2 1854.9h0M644.2 1876.9h0M644.2 1898.9h0M666.2 1635.0h0M666.2 1657.0h0M666.2 1701.0h0M666.2 1723.0h0M666.2 1745.0h0M666.2 1766.9h0M666.2 1788.9h0M666.2 1810.9h0M666.2 1832.9h0M666.2 1854.9h0M666.2 1876.9h0M666.2 1898.9h0M688.2 1635.0h0M688.2 1657.0h0M688.2 1701.0h0M688.2 1723.0h0M688.2 1745.0h0M688.2 1766.9h0M688.2 1788.9h0M688.2 1810.9h0M688.2 1832.9h0M688.2 1854.9h0M688.2 1876.9h0M688.2 1898.9h0M710.2 1525.1h0M710.2 1547.1h0M710.2 1569.0h0M710.2 1613.0h0M710.2 1635.0h0M710.2 1657.0h0M710.2 1679.0h0M710.2 1701.0h0M710.2 1723.0h0M710.2 1745.0h0M710.2 1766.9h0M710.2 1788.9h0M710.2 1810.9h0M710.2 1832.9h0M710.2 1854.9h0M710.2 1876.9h0M710.2 1898.9h0M732.2 1525.1h0M732.2 1547.1h0M732.2 1569.0h0M732.2 1701.0h0M732.2 1723.0h0M732.2 1745.0h0M732.2 1766.9h0M732.2 1788.9h0M732.2 1810.9h0M732.2 1832.9h0M732.2 1854.9h0M732.2 1876.9h0M732.2 1898.9h0M754.1 1525.1h0M754.1 1547.1h0M754.1 1569.0h0M754.1 1701.0h0M754.1 1766.9h0M754.1 1788.9h0M754.1 1810.9h0M754.1 1832.9h0M754.1 1854.9h0M754.1 1876.9h0M754.1 1898.9h0M776.1 1525.1h0M776.1 1547.1h0M776.1 1569.0h0M776.1 1613.0h0M776.1 1635.0h0M776.1 1657.0h0M776.1 1679.0h0M776.1 1701.0h0M776.1 1766.9h0M776.1 1788.9h0M776.1 1810.9h0M776.1 1832.9h0M776.1 1854.9h0M776.1 1876.9h0M776.1 1898.9h0M798.1 1525.1h0M798.1 1547.1h0M798.1 1569.0h0M798.1 1613.0h0M798.1 1635.0h0M798.1 1657.0h0M798.1 1679.0h0M798.1 1701.0h0M798.1 1723.0h0M798.1 1766.9h0M798.1 1788.9h0M798.1 1810.9h0M798.1 1832.9h0M798.1 1854.9h0M798.1 1876.9h0M798.1 1898.9h0M48.3 1404.1h0M26.3 1404.1h0M48.3 1426.1h0M26.3 1426.1h0M4.4 1426.1h0M26.3 1448.1h0M4.4 1448.1h0M4.4 1470.1h0M4.4 1492.1h0M4.4 1514.1h0M4.4 1536.1h0M4.4 1558.1h0M4.4 1580.0h0M4.4 1602.0h0M4.4 1624.0h0M48.3 1382.2h0M26.3 1382.2h0M48.3 1360.2h0M26.3 1360.2h0M48.3 1338.2h0M26.3 1338.2h0M48.3 1316.2h0M48.3 1294.2h0M48.3 1272.2h0M26.3 1272.2h0M48.3 1250.2h0M26.3 1250.2h0M48.3 1228.2h0M26.3 1228.2h0M48.3 1206.3h0M26.3 1206.3h0M48.3 1184.3h0M26.3 1184.3h0M48.3 1162.3h0M26.3 1162.3h0M48.3 1140.3h0M26.3 1140.3h0M26.3 1118.3h0M26.3 1096.3h0M26.3 1074.3h0M26.3 1052.3h0M48.3 942.4h0M26.3 942.4h0M4.4 942.4h0M48.3 920.4h0M26.3 920.4h0M4.4 920.4h0M48.3 898.4h0M26.3 898.4h0M4.4 898.4h0M48.3 876.4h0M26.3 876.4h0M4.4 876.4h0M48.3 854.4h0M26.3 854.4h0M4.4 854.4h0M891.6 40.7h0M913.6 40.7h0M979.5 40.7h0M1001.5 40.7h0M1023.5 40.7h0M1045.5 40.7h0M1067.5 40.7h0M891.6 62.6h0M913.6 62.6h0M935.5 62.6h0M957.5 62.6h0M979.5 62.6h0M1001.5 62.6h0M1023.5 62.6h0M1045.5 62.6h0M1067.5 62.6h0M913.6 84.6h0M935.5 84.6h0M957.5 84.6h0M979.5 84.6h0M1001.5 84.6h0M1023.5 84.6h0M1045.5 84.6h0M1067.5 84.6h0M935.5 106.6h0M957.5 106.6h0M979.5 106.6h0M1001.5 106.6h0M1023.5 106.6h0M1045.5 106.6h0M1067.5 106.6h0M935.5 128.6h0M957.5 128.6h0M979.5 128.6h0M1001.5 128.6h0M1023.5 128.6h0M1045.5 128.6h0M1067.5 128.6h0M935.5 150.6h0M957.5 150.6h0M979.5 150.6h0M1001.5 150.6h0M1023.5 150.6h0M1045.5 150.6h0M1067.5 150.6h0M935.5 172.6h0M957.5 172.6h0M979.5 172.6h0M1001.5 172.6h0M1023.5 172.6h0M1045.5 172.6h0M1067.5 172.6h0M935.5 194.6h0M957.5 194.6h0M979.5 194.6h0M1001.5 194.6h0M1023.5 194.6h0M1045.5 194.6h0M1067.5 194.6h0M935.5 216.6h0M957.5 216.6h0M979.5 216.6h0M1001.5 216.6h0M1023.5 216.6h0M1045.5 216.6h0M1067.5 216.6h0M935.5 238.5h0M957.5 238.5h0M979.5 238.5h0M1001.5 238.5h0M1023.5 238.5h0M1045.5 238.5h0M1067.5 238.5h0M935.5 260.5h0M957.5 260.5h0M979.5 260.5h0M1001.5 260.5h0M1023.5 260.5h0M1045.5 260.5h0M1067.5 260.5h0M891.6 18.7h0M913.6 18.7h0M1001.5 18.7h0M1045.5 18.7h0M1067.5 18.7h0M891.6 -3.3h0M913.6 -3.3h0M1001.5 -3.3h0M1045.5 -3.3h0M1067.5 -3.3h0M161.6 5.5h0M161.6 27.5h0M161.6 49.4h0M161.6 71.4h0M161.6 93.4h0M161.6 115.4h0M183.6 5.5h0M183.6 27.5h0M183.6 49.4h0M183.6 71.4h0M183.6 93.4h0M183.6 115.4h0M205.6 5.5h0M205.6 27.5h0M205.6 49.4h0M205.6 71.4h0M205.6 93.4h0M205.6 115.4h0M227.5 5.5h0M227.5 27.5h0M227.5 49.4h0M227.5 71.4h0M227.5 93.4h0M227.5 115.4h0M249.5 5.5h0M249.5 27.5h0M249.5 49.4h0M249.5 71.4h0M249.5 93.4h0M249.5 115.4h0M271.5 5.5h0M271.5 27.5h0M271.5 49.4h0M271.5 71.4h0M271.5 93.4h0M271.5 115.4h0M293.5 5.5h0M293.5 27.5h0M293.5 49.4h0M293.5 71.4h0M293.5 93.4h0M293.5 115.4h0M315.5 5.5h0M315.5 27.5h0M315.5 49.4h0M315.5 71.4h0M315.5 93.4h0M315.5 115.4h0M337.5 5.5h0M337.5 27.5h0M337.5 49.4h0M337.5 71.4h0M337.5 93.4h0M337.5 115.4h0M359.4 5.5h0M359.4 27.5h0M359.4 49.4h0M359.4 71.4h0M359.4 93.4h0M359.4 115.4h0M381.4 5.5h0M381.4 27.5h0M381.4 49.4h0M381.4 71.4h0M381.4 93.4h0M381.4 115.4h0M139.6 5.5h0M139.6 27.5h0M139.6 49.4h0M139.6 71.4h0M139.6 93.4h0M139.6 115.4h0M117.6 5.5h0M117.6 27.5h0M117.6 49.4h0M117.6 71.4h0M117.6 93.4h0M117.6 115.4h0M95.6 5.5h0M95.6 27.5h0M95.6 49.4h0M95.6 71.4h0M95.6 93.4h0M95.6 115.4h0M73.6 5.5h0M73.6 27.5h0M73.6 49.4h0M73.6 71.4h0M73.6 93.4h0M73.6 115.4h0M51.6 5.5h0M51.6 27.5h0M51.6 49.4h0M51.6 71.4h0M51.6 93.4h0M51.6 115.4h0M29.6 5.5h0M29.6 27.5h0M29.6 49.4h0M29.6 71.4h0M29.6 93.4h0M29.6 115.4h0M7.7 5.5h0M7.7 27.5h0M7.7 49.4h0M7.7 71.4h0M7.7 93.4h0M7.7 115.4h0M445.2 -3.3h0M467.2 -3.3h0M489.2 -3.3h0M511.2 -3.3h0M533.2 -3.3h0M555.2 -3.3h0M577.1 -3.3h0M599.1 -3.3h0M621.1 -3.3h0M643.1 -3.3h0M665.1 -3.3h0M687.1 -3.3h0M709.1 -3.3h0M731.1 -3.3h0M753.0 -3.3h0M775.0 -3.3h0M445.2 18.7h0M467.2 18.7h0M489.2 18.7h0M511.2 18.7h0M533.2 18.7h0M555.2 18.7h0M577.1 18.7h0M599.1 18.7h0M621.1 18.7h0M643.1 18.7h0M665.1 18.7h0M687.1 18.7h0M709.1 18.7h0M731.1 18.7h0M753.0 18.7h0M775.0 18.7h0M445.2 40.7h0M467.2 40.7h0M489.2 40.7h0M511.2 40.7h0M533.2 40.7h0M555.2 40.7h0M577.1 40.7h0M599.1 40.7h0M621.1 40.7h0M643.1 40.7h0M665.1 40.7h0M687.1 40.7h0M709.1 40.7h0M731.1 40.7h0M753.0 40.7h0M775.0 40.7h0M445.2 62.6h0M467.2 62.6h0M489.2 62.6h0M511.2 62.6h0M533.2 62.6h0M555.2 62.6h0M577.1 62.6h0M599.1 62.6h0M621.1 62.6h0M643.1 62.6h0M665.1 62.6h0M687.1 62.6h0M709.1 62.6h0M731.1 62.6h0M753.0 62.6h0M775.0 62.6h0M445.2 84.6h0M467.2 84.6h0M489.2 84.6h0M511.2 84.6h0M533.2 84.6h0M555.2 84.6h0M577.1 84.6h0M599.1 84.6h0M621.1 84.6h0M643.1 84.6h0M665.1 84.6h0M687.1 84.6h0M709.1 84.6h0M731.1 84.6h0M753.0 84.6h0M775.0 84.6h0M445.2 106.6h0M467.2 106.6h0M489.2 106.6h0M511.2 106.6h0M533.2 106.6h0M555.2 106.6h0M577.1 106.6h0M599.1 106.6h0M621.1 106.6h0M643.1 106.6h0M665.1 106.6h0M687.1 106.6h0M709.1 106.6h0M731.1 106.6h0M753.0 106.6h0M775.0 106.6h0M445.2 128.6h0M467.2 128.6h0M489.2 128.6h0M511.2 128.6h0M533.2 128.6h0M555.2 128.6h0M577.1 128.6h0M599.1 128.6h0M621.1 128.6h0M643.1 128.6h0M665.1 128.6h0M687.1 128.6h0M709.1 128.6h0M731.1 128.6h0M753.0 128.6h0M775.0 128.6h0" fill="none" stroke="#516880" stroke-width="4.4" stroke-linecap="round" opacity=".6"/></svg>
+  <div id="hdr">
+    <svg id="logo" viewBox="0 0 87 26" xmlns="http://www.w3.org/2000/svg" aria-label="Public">
+        <g fill="currentColor" fill-rule="nonzero">
+          <g transform="translate(23.3914,2.02002)">
+            <path d="M57.5794,18.09968C59.6437,18.09968 61.7311,16.92788 62.8334,14.98138L61.0273,13.80948C60.3706,14.98138 59.2495,15.82598 57.5762,15.82598C55.7472,15.82598 54.0823,14.46698 54.0823,11.93408C54.0823,9.26098 55.7472,8.04208 57.5762,8.04208C58.9358,8.04208 60.039,8.60448 61.0273,9.77638L62.6221,8.34738C62.067,7.5557 61.3304,6.90838 60.4739,6.45953C59.6173,6.01068 58.6657,5.77334 57.6986,5.76736C54.6491,5.76736 51.6467,8.04208 51.6467,11.93508C51.6467,15.82808 54.578,18.09968 57.5794,18.09968Z"/>
+            <path d="M48.2448,3.86895C48.61,3.87144 48.9678,3.76529 49.2725,3.56401C49.5773,3.36273 49.8152,3.07542 49.9562,2.73859C50.0972,2.40176 50.1348,2.03063 50.0642,1.67239C49.9936,1.31415 49.8181,0.98498 49.5599,0.72673C49.3017,0.46848 48.9725,0.29281 48.6142,0.22206C48.2558,0.15131 47.8845,0.18867 47.5475,0.3294C47.2105,0.47012 46.9229,0.70786 46.7214,1.01237C46.5198,1.31689 46.4134,1.67443 46.4157,2.03954C46.4128,2.28051 46.4581,2.51964 46.5489,2.74285C46.6398,2.96607 46.7744,3.16887 46.9448,3.33932C47.1152,3.50977 47.318,3.64443 47.5413,3.73539C47.7645,3.82635 48.0037,3.87176 48.2448,3.86895Z"/>
+            <polygon points="49.3711 6.14266 47.0495 6.14266 47.0495 17.81848 49.3711 17.81848"/>
+            <polygon points="43.9529 0 41.4201 0 41.4201 17.81848 43.9529 17.81848"/>
+            <path d="M33.4931,5.76736C31.7341,5.76736 30.4436,6.49913 29.7168,7.66682L29.7168,0L27.1369,0L27.1369,17.81848L29.7168,17.81848L29.7168,16.34138C30.4488,17.44318 31.7341,18.09968 33.4931,18.09968C36.8699,18.09968 39.2156,15.49778 39.2156,11.93198C39.2156,8.55648 36.7297,5.76736 33.4931,5.76736ZM33.2839,15.70888C30.9612,15.70888 29.3905,14.14088 29.3905,11.93408C29.3905,9.77638 30.9592,8.15918 33.2839,8.15918C35.3755,8.15918 36.872,9.65928 36.872,11.93408C36.8699,14.13768 35.3692,15.70888 33.2818,15.70888Z"/>
+            <path d="M18.6912,17.98268C19.9346,17.98268 20.9657,17.44318 21.7406,16.34138L21.7406,17.81848L24.1564,17.81848L24.1564,6.14266L21.6716,6.14266L21.6716,12.89478C21.6716,14.60608 20.6394,15.70888 18.9526,15.70888C17.522,15.70888 16.7481,14.46598 16.7481,12.89478L16.7481,6.14266L14.2131,6.14266L14.2131,13.29408C14.2131,16.01318 15.9021,17.98268 18.6912,17.98268Z"/>
+            <path d="M6.4974,5.76736C4.8085,5.76736 3.5191,6.49913 2.4628,7.66682L2.4628,6.14265L0,6.14265L0,21.99168L2.4628,21.99168L2.4628,16.34658C3.5191,17.44848 4.8085,18.10498 6.4974,18.10498C9.8512,18.10498 12.267,15.31478 12.267,11.93718C12.267,8.34738 9.8512,5.76736 6.4974,5.76736ZM6.1691,15.70888C3.7763,15.70888 2.3457,14.14088 2.3457,11.93408C2.3457,9.77638 3.7763,8.15918 6.1691,8.15918C8.4436,8.15918 9.8512,9.77638 9.8512,11.93408C9.8512,14.13768 8.4426,15.70888 6.1691,15.70888Z"/>
+          </g>
+          <path class="mark" d="M7.79749,15.595C12.1039,15.595 15.595,12.1039 15.595,7.79749C15.595,3.49106 12.1039,0 7.79749,0C3.49105,0 0,3.49106 0,7.79749C0,12.1039 3.49105,15.595 7.79749,15.595Z"/>
+          <path class="mark" d="M3.89874,26C4.93479,25.9931 5.92608,25.5768 6.65644,24.8419C7.38679,24.1071 7.79696,23.1132 7.79749,22.0772C7.79749,19.9639 6.03609,18.2025 3.89874,18.2025C1.7614,18.2025 0,19.9639 0,22.0772C0.00053,23.1132 0.410695,24.1071 1.14105,24.8419C1.8714,25.5768 2.8627,25.9931 3.89874,26Z"/>
+        </g>
+      </svg>
+    <h1 id="title"></h1>
+  </div>
+
+  <div id="right">
+    <div id="tabrow"><div id="tabs"></div><div id="cdl"></div></div>
+    <div id="cards"></div>
+  </div>
+
+  <div id="foot">
+    <div id="more"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></div>
+    <button id="cta"></button>
+    <div id="legal"></div>
+  </div>
+
+  <div id="scrim"></div>
+  <div id="sheet">
+    <div class="grab"></div>
+    <div id="x">&times;</div>
+    <div class="s-sub" id="s-sub"></div>
+    <div class="s-title" id="s-title"></div>
+    <div class="sides">
+      <div class="side" data-side="yes"><div class="n" id="n-yes"></div><div class="p" id="p-yes"></div></div>
+      <div class="side" data-side="no"><div class="n" id="n-no"></div><div class="p" id="p-no"></div></div>
+    </div>
+    <div class="lbl" id="amt-lbl"></div>
+    <div class="amts" id="amts"></div>
+    <div class="sum" id="sum"></div>
+    <button id="buy"></button>
+    <div class="fine" id="fine"></div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   CONFIG — edit this block. Everything below is boilerplate.
+   ============================================================ */
+const CONFIG = {
+  THEME: 'light',                            // 'light' | 'dark' — Figma › Interactive Light / Dark
+  /* Click-out, in priority order.
+
+       campaign  The campaign's own click-through, which is what should open in
+                 a live placement so the click is tracked and attributed. Put
+                 the Axon macro here and the platform substitutes a real URL at
+                 serve time. Left empty it falls through, so a preview still
+                 works and a mis-set macro cannot dead-end a click.
+       override  Pins one URL everywhere. For a manual MMP link or a test.
+       ios/andr  Raw store pages. The floor, not the plan: an install landing
+                 here is untracked.                                            */
+  STORE_URL: {
+    campaign: '',       // e.g. '{CLICK_URL}' — confirm the macro with Axon
+    override: '',
+    ios:      'https://apps.apple.com/us/app/public-invest-trade/id1204112719',
+    android:  'https://play.google.com/store/apps/details?id=com.public.app&hl=en_US'
+  },
+
+  /* Live feed from Public's API. Leave url '' to run on the simulated sample data.
+     Expected response (adjust FEED.parse if the real shape differs). Two market types:
+
+     { "markets": [
+       { "id": "KXBTC15M-26OCT271415", "symbol": "BTC", "lane": "crypto",
+         "type": "strike",                       // "$X or above" ladder
+         "close_time": "2026-10-27T18:15:00Z",   // ISO, end of the 15-min window
+         "spot": 112431.20,
+         "strikes": [ { "id": "...", "floor": 112500, "yes_price": 0.42 }, ... ] },   // send the full ladder
+
+       { "id": "...", "symbol": "UST10Y", "lane": "financials",
+         "type": "updown",                       // up or down vs. the window's opening value
+         "close_time": "2026-10-27T18:15:00Z",
+         "spot": 4.052, "open": 4.048,
+         "up_price": 0.54 }                      // prices 0-1 or 0-100, auto-detected
+     ] }
+
+     "symbol" must match a SAMPLE entry below — that's where the display name, icon,
+     number format and question wording come from. Markets the feed doesn't return are hidden. */
+  FEED: {
+    url: 'https://ginawu-applovin.github.io/public-15min-feed/feed.json',
+    refreshMs: 5000,                          // 15-min markets move fast; proxy cache TTL should match
+    parse: null                               // optional custom fn(json) -> markets[] in the shape above
+  },
+
+  LANES: [ { id:'crypto', label:'Crypto' }, { id:'commodities', label:'Commodities' }, { id:'financials', label:'Financials' } ],
+  STRIKES_PER_MARKET: 2,
+
+  /* Red "LIVE" tag under each market. It always shows once the feed is live; this flag
+     also shows it on simulated data for review. Set false before shipping so a feed
+     outage (fallback to sample data) never displays LIVE.                              */
+  PREVIEW_LIVE_BADGE: false,                // not used in this design (no LIVE tags)
+
+  /* Coin logos — paste the official files (from Public's app / design team) as data URIs,
+     e.g. BTC: 'data:image/svg+xml;base64,PHN2Zy...'. Empty = neutral ticker badge.        */
+  LOGOS: { BTC:'', ETH:'', SOL:'', XRP:'', BNB:'', DOGE:'' },
+  AMOUNTS: [10, 25, 50, 100],
+  DEFAULT_AMOUNT: 25,
+  TIMEZONE: 'America/New_York',
+
+  COPY: {
+    titleA: 'Where will the price be in ',
+    titleB: '15\u00A0minutes',
+    titleC: '?',
+    left: '{t} left',
+    target: 'Target:',
+    live: 'LIVE',
+    tapHint: 'Tap to interact',
+    strikeQ: '{q} at {time}?',
+    updownQ: '{q} at {time}?',
+    now: 'Now', open: 'Open',
+    orAbove: '{k} or above',
+    upFrom: 'Up or down from {v}',
+    yes: 'Yes', no: 'No', up: 'Up', down: 'Down',
+    closes: 'Closes',
+    pickAmt: 'Amount',
+    contracts: 'Contracts', cost: 'Cost', ifRight: 'Pays if correct', ifWrong: 'Pays if not',
+    buy: 'Continue on Public',
+    cta: 'Trade on Public',
+    fine: 'Each contract pays $1 if correct and $0 if not. Prices move in real time. Excludes fees.',
+    legal: 'Event contracts involve significant risk and aren’t suitable for all investors. Read the Event Contracts Risk Disclosure (public.com/disclosures/eventcontractsrisk). Offered by Open to the Public Investing, Inc. and Apex Clearing Corporation through KalshiEX LLC. Illustrative only.'
+  },
+
+  /* Market catalog — display settings for every market, in tab order.
+       label: card header   q: subject used in the question   icon: badge text
+       unit: usd | pct | fx   dp: decimals for the live value   sdp: decimals for strike labels
+     ⚠️ spot / vol / inc are PLACEHOLDERS that only drive the simulator (spot = invented
+       starting value, vol = annualized volatility, inc = strike spacing). Once FEED.url is
+       live, real prices replace them.                                                     */
+  /* Starting values from public market data on Oct 29, 2026 (morning ET): crypto via Forbes Advisor /
+     Brave New Coin / CoinCheckup (DOGE), metals & energy via Trading Economics / Kitco / Yahoo Finance, Treasury yields via
+     CNBC, FX via Trading Economics. The simulator moves them from there; the live feed replaces them.
+     badge: [background, text] for the round icon when no logo file is set in LOGOS.                  */
+  SAMPLE: [
+    // ---- Crypto (up or down vs. the window's opening price) ----
+    { id:'btc',  symbol:'BTC', lane:'crypto', type:'updown', label:'BTC', q:'BTC price', icon:'₿',   badge:['#F7931A','#FFFFFF'], unit:'usd', dp:2, spot:80240.00, vol:.45 },
+    { id:'eth',  symbol:'ETH', lane:'crypto', type:'updown', label:'ETH', q:'ETH price', icon:'Ξ',   badge:['#1B1E2B','#FFFFFF'], unit:'usd', dp:2, spot:2322.33,  vol:.60 },
+    { id:'sol',  symbol:'SOL', lane:'crypto', type:'updown', label:'SOL', q:'SOL price', icon:'SOL', badge:['#0E0F14','#FFFFFF'], unit:'usd', dp:2, spot:100.17,   vol:.75 },
+    { id:'xrp',  symbol:'XRP', lane:'crypto', type:'updown', label:'XRP', q:'XRP price', icon:'XRP', badge:['#23292F','#FFFFFF'], unit:'usd', dp:4, spot:1.3200,   vol:.85 },
+    { id:'bnb',  symbol:'BNB', lane:'crypto', type:'updown', label:'BNB', q:'BNB price', icon:'BNB', badge:['#F3BA2F','#1E2026'], unit:'usd', dp:2, spot:756.61,   vol:.55 },
+    { id:'doge', symbol:'DOGE',lane:'crypto', type:'updown', label:'DOGE',q:'DOGE price',icon:'Ð',   badge:['#C2A633','#FFFFFF'], unit:'usd', dp:5, spot:.07800,   vol:.90 },
+    // ---- Commodities ("$X or above" ladders) ----
+    { id:'gold',  symbol:'GOLD',  lane:'commodities', type:'strike', label:'GOLD',        q:'Gold price',        icon:'Au',  unit:'usd', dp:2, sdp:0, spot:4030.25, vol:.22, inc:5 },
+    { id:'wti',   symbol:'WTI',   lane:'commodities', type:'strike', label:'WTI OIL',     q:'WTI oil price',     icon:'WTI', unit:'usd', dp:2, sdp:2, spot:101.80,  vol:.55, inc:.10 },
+    { id:'brent', symbol:'BRENT', lane:'commodities', type:'strike', label:'BRENT CRUDE', q:'Brent oil price',   icon:'BRN', unit:'usd', dp:2, sdp:2, spot:113.90,  vol:.50, inc:.10 },
+    { id:'silv',  symbol:'SILVER',lane:'commodities', type:'strike', label:'SILVER',      q:'Silver price',      icon:'Ag',  unit:'usd', dp:3, sdp:2, spot:52.65,   vol:.40, inc:.10 },
+    { id:'ng',    symbol:'NG',    lane:'commodities', type:'strike', label:'NATURAL GAS', q:'Natural gas price', icon:'NG',  unit:'usd', dp:3, sdp:2, spot:3.031,   vol:.60, inc:.01 },
+    { id:'cu',    symbol:'COPPER',lane:'commodities', type:'strike', label:'COPPER',      q:'Copper price',      icon:'Cu',  unit:'usd', dp:4, sdp:3, spot:6.623,   vol:.25, inc:.005 },
+    { id:'pt',    symbol:'PLAT',  lane:'commodities', type:'strike', label:'PLATINUM',    q:'Platinum price',    icon:'Pt',  unit:'usd', dp:2, sdp:0, spot:1530.90, vol:.30, inc:2 },
+    { id:'pd',    symbol:'PALL',  lane:'commodities', type:'strike', label:'PALLADIUM',   q:'Palladium price',   icon:'Pd',  unit:'usd', dp:2, sdp:0, spot:985.00,  vol:.35, inc:2 },
+    // ---- Financials (up or down vs. the window's opening value) ----
+    { id:'t10', symbol:'UST10Y', lane:'financials', type:'updown', label:'10-YEAR U.S. TREASURY', q:'10-year Treasury yield', icon:'10Y', unit:'pct', dp:3, spot:5.011,  vol:.18 },
+    { id:'t2',  symbol:'UST2Y',  lane:'financials', type:'updown', label:'2-YEAR U.S. TREASURY',  q:'2-year Treasury yield',  icon:'2Y',  unit:'pct', dp:3, spot:4.693,  vol:.20 },
+    { id:'t5',  symbol:'UST5Y',  lane:'financials', type:'updown', label:'5-YEAR U.S. TREASURY',  q:'5-year Treasury yield',  icon:'5Y',  unit:'pct', dp:3, spot:4.688,  vol:.20 },
+    { id:'t30', symbol:'UST30Y', lane:'financials', type:'updown', label:'30-YEAR U.S. TREASURY', q:'30-year Treasury yield', icon:'30Y', unit:'pct', dp:3, spot:5.334,  vol:.16 },
+    { id:'eur', symbol:'EURUSD', lane:'financials', type:'updown', label:'EUR/USD', q:'EUR/USD', icon:'EUR', unit:'fx', dp:5, spot:1.11393, vol:.08 },
+    { id:'jpy', symbol:'USDJPY', lane:'financials', type:'updown', label:'USD/JPY', q:'USD/JPY', icon:'JPY', unit:'fx', dp:3, spot:157.968, vol:.10 },
+    { id:'gbp', symbol:'GBPUSD', lane:'financials', type:'updown', label:'GBP/USD', q:'GBP/USD', icon:'GBP', unit:'fx', dp:5, spot:1.33179, vol:.08 },
+    { id:'cad', symbol:'USDCAD', lane:'financials', type:'updown', label:'USD/CAD', q:'USD/CAD', icon:'CAD', unit:'fx', dp:5, spot:1.39939, vol:.06 },
+    { id:'aud', symbol:'AUDUSD', lane:'financials', type:'updown', label:'AUD/USD', q:'AUD/USD', icon:'AUD', unit:'fx', dp:5, spot:.70316,  vol:.09 }
+  ]
+};
+
+/* ============================================================
+   BOILERPLATE — scaling, MRAID, data, render
+   ============================================================ */
+const $ = id => document.getElementById(id);
+document.documentElement.setAttribute('data-theme', CONFIG.THEME === 'dark' ? 'dark' : 'light');
+const C = CONFIG.COPY;
+const fill = (s, v) => { for (const k in v) s = s.split('{'+k+'}').join(v[k]); return s; };
+
+/* ---- 1080x1920 / 1920x1080 zoom scaling (zoom, not transform — transform clips on iOS Safari) ---- */
+function scaleStage(){
+  const vw = (window.visualViewport && window.visualViewport.width)  || window.innerWidth;
+  const vh = (window.visualViewport && window.visualViewport.height) || window.innerHeight;
+  const ls = vw > vh, st = $('stage');
+  /* base canvas 1080x1920 (or 1920x1080); stretch the long side to fill taller/wider
+     devices, and widen up to 1.33x on squarer screens (tablets) instead of letterboxing */
+  const B = ls ? [1920,1080] : [1080,1920], r = vw / vh, br = B[0] / B[1];
+  const dim = r < br ? [B[0], Math.round(B[0] / r)] : [Math.min(Math.round(B[1] * r), Math.round(B[0] * 1.33)), B[1]];
+  st.style.width = dim[0]+'px'; st.style.height = dim[1]+'px';
+  st.classList.toggle('ls', ls);
+  const z = Math.min(vw/dim[0], vh/dim[1]); st.style.zoom = z;
+  st.style.height = Math.max(dim[1], Math.ceil(vh / z)) + 'px';   // fill to the last pixel, so the dock meets the bottom edge
+  updateMore();
+}
+addEventListener('resize', scaleStage);
+addEventListener('orientationchange', () => setTimeout(scaleStage, 120));
+
+/* ---- MRAID (AppLovin: wait for ready before layout; CTA via mraid.open) ---- */
+function whenReady(fn){
+  let done = false; const once = () => { if (!done){ done = true; fn(); } };
+  if (!window.mraid) return once();
+  try { if (mraid.getState() === 'loading'){ mraid.addEventListener('ready', once); setTimeout(once, 2000); return; } } catch(e){}
+  once();
+}
+/* campaign -> override -> store by OS.
+   `campaign` is only used once it looks like a real URL, so an unsubstituted
+   macro ('{CLICK_URL}') falls through to the store instead of opening garbage.
+   Android goes to Play, everything else to the App Store; a desktop preview
+   lands on the Apple page, which is fine for review. */
+function isUrl(v){ return typeof v === 'string' && /^https?:\/\//i.test(v); }
+function storeUrl(){
+  var S = CONFIG.STORE_URL;
+  if (typeof S === 'string') return S;
+  if (isUrl(S.campaign)) return S.campaign;
+  if (isUrl(S.override)) return S.override;
+  return /Android/i.test(navigator.userAgent || '') ? S.android : S.ios;
+}
+function openStore(){
+  var url = storeUrl();
+  try { if (window.mraid && mraid.open){ mraid.open(url); return; } } catch(e){}
+  try { window.open(url, '_blank'); } catch(e){}
+}
+
+/* ---- tap guard: one gesture never fires twice ---- */
+let lock = 0;
+const guard = fn => function(e){ if (e) e.stopPropagation(); const n = Date.now(); if (n < lock) return; lock = n + 250; fn.apply(this, arguments); };
+
+/* ---- time + number helpers ---- */
+const WINDOW = 15*60*1000;
+const nextClose = t => Math.ceil((t+1)/WINDOW)*WINDOW;
+/* A fed close_time that has already passed means the snapshot outlived its
+   window -- the feed is rebuilt on a schedule, not per tick, so this is normal
+   rather than an error. Windows sit on fixed quarter-hour boundaries, so the
+   honest repair is to roll to the next one: the countdown stays truthful about
+   when the current window ends, and the prices stay flagged as last-known.
+   A fresh feed passes through untouched. */
+const rollClose = t => (t && t > Date.now()) ? t : nextClose(Date.now());
+let fmtTime;
+try { const f = new Intl.DateTimeFormat('en-US',{hour:'numeric',minute:'2-digit',timeZone:CONFIG.TIMEZONE,timeZoneName:'short'}); fmtTime = d => f.format(d); }
+catch(e){ fmtTime = d => d.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'}); }
+const mmss = ms => { const s = Math.max(0, Math.ceil(ms/1000)); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); };
+const num = (v, dp) => v.toLocaleString('en-US',{minimumFractionDigits:dp,maximumFractionDigits:dp});
+const money = (v, dp) => '$' + num(v, dp);
+const fmtVal = (m, v, dp) => { dp = dp == null ? m.dp : dp;
+  return m.unit === 'pct' ? num(v, dp) + '%' : m.unit === 'fx' ? num(v, dp) : money(v, dp); };
+
+/* ---- pricing for the simulator (driftless lognormal) ---- */
+function ncdf(x){ const t=1/(1+.2316419*Math.abs(x)), d=.3989423*Math.exp(-x*x/2);
+  const p=d*t*(.3193815+t*(-.3565638+t*(1.781478+t*(-1.821256+t*1.330274)))); return x>0?1-p:p; }
+function gauss(){ let u=0,v=0; while(!u)u=Math.random(); while(!v)v=Math.random(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); }
+const YEAR_S = 31536000;
+const clampC = p => Math.min(99, Math.max(1, Math.round(p)));
+
+/* ---- model ---- */
+let MARKETS = [], isLive = false;
+const catalog = sym => CONFIG.SAMPLE.find(s => s.symbol === sym) || {};
+
+function sampleLadder(m){
+  const base = Math.round(m.spot/m.inc)*m.inc, ks = [];
+  for (let i=-6;i<=6;i++) ks.push(+(base + i*m.inc).toFixed(6));
+  m.ladder = ks.map(k => ({ id: m.id+'-'+m.close+'-'+k, floor:k, yes:50 }));
+}
+/* Show the strikes closest to the money (yes nearest 50¢), highest strike first —
+   same rule for sample and live, so the feed can send the full ladder. */
+function pickStrikes(m){
+  if (m.type !== 'strike') { m.strikes = []; return; }
+  m.strikes = m.ladder.slice().sort((a,b) => Math.abs(a.yes-50) - Math.abs(b.yes-50) || Math.abs(a.floor-m.spot) - Math.abs(b.floor-m.spot))
+    .slice(0, CONFIG.STRIKES_PER_MARKET).sort((a,b) => b.floor - a.floor);
+}
+function priceSample(m, now){
+  const sd = m.vol*Math.sqrt(Math.max(360, (m.close - now)/1000)/YEAR_S);
+  if (m.type === 'updown'){ m.up = clampC(ncdf(Math.log(m.spot/m.open)/sd)*100); return; }
+  m.ladder.forEach(s => { s.yes = clampC(ncdf(Math.log(m.spot/s.floor)/sd)*100); });
+  pickStrikes(m);
+}
+function initSample(){
+  const now = Date.now();
+  MARKETS = CONFIG.SAMPLE.map(s => {
+    const m = Object.assign({}, s, { close: nextClose(now), hist: [] });
+    let p = m.spot; const step = m.vol/Math.sqrt(YEAR_S);       // seed ~2 min of history
+    for (let i=0;i<60;i++){ m.hist.unshift(p); p *= Math.exp(-gauss()*step*2); }
+    m.open = m.hist[Math.floor(m.hist.length/3)];                // window "opened" a bit ago
+    if (m.type === 'strike') sampleLadder(m);
+    priceSample(m, now);
+    return m;
+  });
+}
+function tickSample(now){
+  MARKETS.forEach(m => {
+    const prev = m.spot;
+    m.spot *= Math.exp(gauss()*m.vol/Math.sqrt(YEAR_S)*1.6);    // slightly lively for demo
+    m.dir = m.spot > prev ? 1 : -1;
+    m.hist.push(m.spot); if (m.hist.length > 60) m.hist.shift();
+    if (now >= m.close){ m.close = nextClose(now); m.open = m.spot; if (m.type === 'strike') sampleLadder(m); }
+    priceSample(m, now);
+  });
+}
+
+/* ---- live feed ---- */
+function normalize(json){
+  const list = CONFIG.FEED.parse ? CONFIG.FEED.parse(json) : (json.markets || json);
+  if (!Array.isArray(list)) return null;
+  let max = 0;
+  list.forEach(m => { max = Math.max(max, +m.up_price || 0); (m.strikes||[]).forEach(s => { max = Math.max(max, +s.yes_price || 0); }); });
+  const sc = max > 1.5 ? 1 : 100;
+  const out = [];
+  CONFIG.SAMPLE.forEach(cat => {                      // keep catalog (tab) order
+    const m = list.find(x => x.symbol === cat.symbol); if (!m) return;
+    const old = MARKETS.find(o => o.symbol === cat.symbol) || {};
+    const spot = +m.spot;
+    const mk = Object.assign({}, cat, {
+      id: String(m.id), lane: m.lane || cat.lane, type: m.type || cat.type,
+      spot, open: +m.open || old.open || spot,
+      dir: old.spot ? (spot >= old.spot ? 1 : -1) : 0,
+      hist: (old.symbol === cat.symbol && old.id === String(m.id) ? old.hist : []).concat([spot]).slice(-60),
+      close: rollClose(Date.parse(m.close_time)),
+      up: clampC((+m.up_price || 0) * sc),
+      ladder: (m.strikes||[]).map(s => ({ id:String(s.id), floor:+s.floor, yes: clampC((+s.yes_price)*sc) }))
+    });
+    pickStrikes(mk);
+    if (mk.spot && mk.close && (mk.type === 'updown' || mk.strikes.length)) out.push(mk);
+  });
+  return out;
+}
+async function fetchLive(){
+  /* Measured 2026-10-29: Pages serves this with cache-control: max-age=600 AND
+     strips the query string at the edge -- two distinct nonces both returned
+     x-cache: HIT. So this buster does NOT beat the CDN; nothing in the creative
+     can. It is kept only for intermediate proxies and webview caches that do
+     key on the query. The real staleness budget is in README, "Staleness". */
+  const bust = (CONFIG.FEED.url.indexOf('?') < 0 ? '?' : '&') + 't=' + Math.floor(Date.now()/60000);
+  const r = await fetch(CONFIG.FEED.url + bust, { cache:'no-store' });
+  if (!r.ok) throw new Error('feed '+r.status);
+  const ms = normalize(await r.json());
+  if (ms && ms.length){ MARKETS = ms; isLive = true; }
+}
+
+/* ---- UI state ---- */
+let lane = CONFIG.LANES[0].id, touched = false, builtLane = null, builtIds = '';
+let order = null;   // { marketId, symbol, strikeId, floor, side }
+const els = {};     // marketId -> DOM refs
+
+const laneMarkets = () => MARKETS.filter(m => m.lane === lane);
+const cardKey = m => m.id + '|' + m.type + '|' + (m.strikes||[]).map(s => s.id).join(',');
+
+function sparkPath(h){
+  if (h.length < 2) return '';
+  const min = Math.min.apply(null,h), max = Math.max.apply(null,h), rng = (max-min)||1;
+  return h.map((v,i) => (i?'L':'M') + (i*200/(h.length-1)).toFixed(1) + ',' + (48 - (v-min)/rng*44).toFixed(1)).join(' ');
+}
+const ARROW_UP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>';
+const ARROW_DN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>';
+
+/* Hand + pill: fingertip on the first Yes/Up button, pill centered on the card.
+   Positioned from offsets inside the card, so it scrolls with the list. */
+function addHint(card, target){
+  const h = document.createElement('div'); h.className = 'hint';
+  h.innerHTML = '<div class="hand">\uD83D\uDC46</div><div class="tip"></div>';
+  h.querySelector('.tip').textContent = C.tapHint;
+  h._target = target; card.appendChild(h);
+}
+function placeHints(){
+  document.querySelectorAll('.hint').forEach(h => {
+    const t = h._target, card = h.parentNode; if (!t || !card) return;
+    let x = t.offsetWidth/2, y = t.offsetHeight*0.55, n = t;
+    while (n && n !== card){ x += n.offsetLeft; y += n.offsetTop; n = n.offsetParent; }
+    h.style.left = x + 'px'; h.style.top = y + 'px';
+    h.querySelector('.tip').style.left = (card.clientWidth/2 - x) + 'px';
+  });
+}
+function dismissHints(){ touched = true; document.querySelectorAll('.hint').forEach(h => h.remove()); }
+
+function buildCard(m, first){
+  const c = document.createElement('div'); c.className = 'card';
+  c.innerHTML =
+    '<div class="ch"><div class="ico"></div><h3></h3></div>' +
+    '<div class="cd"><span class="now"></span><svg viewBox="0 0 200 52" preserveAspectRatio="none"><path fill="none" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg></div>';
+  const ico = c.querySelector('.ico'), logo = (CONFIG.LOGOS || {})[m.symbol];
+  if (logo){ const img = new Image(); img.src = logo; img.alt = m.symbol; img.style.cssText = 'width:100%;height:100%;display:block';
+    ico.style.background = 'none'; ico.appendChild(img); }
+  else {
+    ico.textContent = m.icon; if (m.icon.length === 3) ico.classList.add('sm'); else if (m.icon.length > 3) ico.classList.add('xs');
+    if (m.badge){ ico.style.background = m.badge[0]; ico.style.color = m.badge[1]; }
+  }
+  const ref = { key:cardKey(m), card:c, h3:c.querySelector('h3'), now:c.querySelector('.now'), path:c.querySelector('.cd path'), rows:{} };
+
+  if (m.type === 'updown'){
+    const bar = document.createElement('div'); bar.className = 'bar'; bar.innerHTML = '<i class="y"></i><i class="n"></i>';
+    const btns = document.createElement('div'); btns.className = 'btns';
+    btns.innerHTML = '<div class="chip y" data-side="yes"></div><div class="chip n" data-side="no"></div>';
+    const [cu, cd] = btns.querySelectorAll('.chip');
+    cu.addEventListener('click', guard(() => openSheet(m.id, null, 'yes')));
+    cd.addEventListener('click', guard(() => openSheet(m.id, null, 'no')));
+    c.append(bar, btns);
+    if (first && !touched) addHint(c, cu);
+    ref.ud = { by:bar.querySelector('.y'), bn:bar.querySelector('.n'), cu, cd, last:null };
+  } else {
+    const rows = document.createElement('div'); rows.className = 'rows';
+    m.strikes.forEach((s, si) => {
+      const r = document.createElement('div'); r.className = 'row';
+      r.innerHTML = '<div class="l"><div class="k"></div><div class="bar"><i class="y"></i><i class="n"></i></div></div>' +
+                    '<div class="btns"><div class="chip y"></div><div class="chip n"></div></div>';
+      r.querySelector('.k').textContent = fill(C.orAbove, { k: fmtVal(m, s.floor, m.sdp) });
+      const cy = r.querySelector('.chip.y'), cn = r.querySelector('.chip.n');
+      cy.addEventListener('click', guard(() => openSheet(m.id, s.id, 'yes')));
+      cn.addEventListener('click', guard(() => openSheet(m.id, s.id, 'no')));
+      rows.appendChild(r);
+      if (first && si === 0 && !touched) addHint(c, cy);
+      ref.rows[s.id] = { by:r.querySelector('.bar .y'), bn:r.querySelector('.bar .n'), cy, cn, last:null };
+    });
+    c.appendChild(rows);
+  }
+  els[m.id] = ref;
+  return c;
+}
+
+function flash(chip, ref, v){
+  if (ref.last != null && ref.last !== v){ chip.classList.remove('flash'); void chip.offsetWidth; chip.classList.add('flash'); }
+}
+
+function syncCards(){
+  const box = $('cards'), ms = laneMarkets();
+  const ids = ms.map(m => m.id).join(',');
+  if (builtLane !== lane || builtIds !== ids){        // new tab, or the feed swapped the market set
+    const keep = builtLane === lane ? box.scrollTop : 0;
+    box.innerHTML = ''; for (const k in els) delete els[k];
+    ms.forEach((m, i) => box.appendChild(buildCard(m, i === 0)));
+    box.scrollTop = keep; builtLane = lane; builtIds = ids;
+    return;
+  }
+  // replace only cards whose strike set changed — keeps the user's scroll position
+  ms.forEach((m, i) => {
+    const e = els[m.id];
+    if (e.key !== cardKey(m)){ const n = buildCard(m, i === 0 && !touched); box.replaceChild(n, e.card); }
+  });
+}
+
+const barFlex = p => '0 0 calc(' + p + '% - 5.19px)';
+function updateCards(now){
+  laneMarkets().forEach(m => {
+    const e = els[m.id]; if (!e) return;
+    const t = fmtTime(new Date(m.close));
+    const q = fill(m.type === 'updown' ? C.updownQ : C.strikeQ, { q: m.q, time: '\u0000' }).split('\u0000');
+    if (e.h3.dataset.t !== t){
+      e.h3.innerHTML = ''; e.h3.append(q[0]);
+      const b = document.createElement('b'); b.textContent = t; e.h3.append(b, q[1] || '');
+      e.h3.dataset.t = t;
+    }
+    /* The feed has no live tick, so it sets spot = open. Printing both would
+       show the same number twice and read as a bug, so show the target alone
+       until a real spot arrives. A feed that does carry a distinct spot falls
+       through to the full line unchanged. See README, "Known gaps". */
+    e.now.textContent = (m.type === 'updown' && m.spot === m.open)
+      ? C.target + ' ' + fmtVal(m, m.open)
+      : C.now + ' ' + fmtVal(m, m.spot) + (m.type === 'updown' ? '  |  ' + C.target + ' ' + fmtVal(m, m.open) : '');
+    e.path.setAttribute('d', sparkPath(m.hist));
+    if (m.type === 'updown'){
+      const u = e.ud;
+      u.cu.textContent = C.up + ' ' + m.up + '%'; u.cd.textContent = C.down + ' ' + (100 - m.up) + '%';
+      u.by.style.flex = barFlex(m.up);
+      flash(u.cu, u, m.up); flash(u.cd, u, m.up); u.last = m.up;
+    } else {
+      m.strikes.forEach(s => {
+        const r = e.rows[s.id]; if (!r) return;
+        r.cy.textContent = C.yes + ' ' + s.yes + '%'; r.cn.textContent = C.no + ' ' + (100 - s.yes) + '%';
+        r.by.style.flex = barFlex(s.yes);
+        flash(r.cy, r, s.yes); flash(r.cn, r, s.yes); r.last = s.yes;
+      });
+    }
+  });
+}
+
+/* ---- "more below" chevron ---- */
+function updateMore(){
+  const b = $('cards'); if (!b) return;
+  $('more').classList.toggle('off', b.scrollTop + b.clientHeight >= b.scrollHeight - 140);
+}
+
+/* ---- order sheet ---- */
+function findOrder(){
+  const m = MARKETS.find(x => x.id === order.marketId) || MARKETS.find(x => x.symbol === order.symbol);
+  if (!m) return {};
+  if (m.type === 'updown') return { m, yes: m.up };
+  const s = (m.ladder||[]).find(x => x.id === order.strikeId) || (m.ladder||[]).find(x => x.floor === order.floor) || m.strikes[0];
+  return s ? { m, s, yes: s.yes } : {};
+}
+function openSheet(mid, sid, side){
+  dismissHints();
+  const m = MARKETS.find(x => x.id === mid), s = sid ? m.ladder.find(x => x.id === sid) : null;
+  order = { marketId:mid, symbol:m.symbol, strikeId:sid, floor:s ? s.floor : null, side, amount:CONFIG.DEFAULT_AMOUNT };
+  renderSheet();
+  $('scrim').classList.add('on'); $('sheet').classList.add('on');
+}
+function closeSheet(){ $('scrim').classList.remove('on'); $('sheet').classList.remove('on'); order = null; }
+function renderSheet(){
+  if (!order) return;
+  const { m, s, yes } = findOrder(); if (!m || yes == null){ closeSheet(); return; }
+  order.marketId = m.id; if (s) order.strikeId = s.id;
+  const ud = m.type === 'updown', now = Date.now();
+  $('s-sub').innerHTML = '';
+  $('s-sub').append(fill(ud ? C.updownQ : C.strikeQ, { q:m.q, time:fmtTime(new Date(m.close)) }) + '  ·  ' + C.closes + ' ');
+  const cd = document.createElement('b'); cd.textContent = mmss(m.close - now); $('s-sub').append(cd);
+  $('s-title').textContent = ud ? fill(C.upFrom, { v: fmtVal(m, m.open) }) : fill(C.orAbove, { k: fmtVal(m, s.floor, m.sdp) });
+  $('n-yes').textContent = ud ? C.up : C.yes; $('n-no').textContent = ud ? C.down : C.no;
+  const no = 100 - yes, px = order.side === 'yes' ? yes : no;
+  $('p-yes').textContent = yes + '¢'; $('p-no').textContent = no + '¢';
+  document.querySelectorAll('.side').forEach(el => el.classList.toggle('on', el.dataset.side === order.side));
+  document.querySelectorAll('.amt').forEach(el => el.classList.toggle('on', +el.dataset.v === order.amount));
+  const n = Math.floor(order.amount / (px/100)), cost = n*px/100;
+  const rows = [[C.contracts, n + ' @ ' + px + '¢', ''], [C.cost, money(cost,2), ''],
+                [C.ifRight, money(n,2), 'big'], [C.ifWrong, '$0.00', '']];
+  const sum = $('sum'); sum.innerHTML = '';
+  rows.forEach(r => { const d = document.createElement('div'); d.className = 'r ' + r[2];
+    const a = document.createElement('span'); a.textContent = r[0]; const b = document.createElement('b'); b.textContent = r[1];
+    d.append(a, b); sum.appendChild(d); });
+}
+
+/* ---- static build ---- */
+function buildStatic(){
+  const title = $('title'); title.append(C.titleA);
+  const hl = document.createElement('span'); hl.className = 'hl'; hl.textContent = C.titleB; title.append(hl, C.titleC || '');
+  $('cta').textContent = C.cta; $('legal').textContent = C.legal;
+  $('buy').textContent = C.buy; $('fine').textContent = C.fine; $('amt-lbl').textContent = C.pickAmt;
+
+  CONFIG.LANES.forEach(l => {
+    const t = document.createElement('div'); t.className = 'tab'; t.dataset.lane = l.id; t.textContent = l.label;
+    t.addEventListener('click', guard(() => { if (lane !== l.id){ lane = l.id; render(); } }));
+    $('tabs').appendChild(t);
+  });
+  CONFIG.AMOUNTS.forEach(v => {
+    const a = document.createElement('div'); a.className = 'amt'; a.dataset.v = v; a.textContent = '$'+v;
+    a.addEventListener('click', e => { e.stopPropagation(); order.amount = v; renderSheet(); });
+    $('amts').appendChild(a);
+  });
+  document.querySelectorAll('.side').forEach(s => s.addEventListener('click', e => { e.stopPropagation(); order.side = s.dataset.side; renderSheet(); }));
+  $('x').addEventListener('click', guard(closeSheet));
+  $('scrim').addEventListener('click', guard(closeSheet));
+  $('cta').addEventListener('click', openStore);
+  $('buy').addEventListener('click', openStore);
+  $('cards').addEventListener('scroll', updateMore, { passive:true });
+  // first touch anywhere (tap, scroll, tab) clears the hand hint
+  $('stage').addEventListener('pointerdown', () => { if (!touched) dismissHints(); }, { passive:true });
+  $('stage').addEventListener('touchstart', () => { if (!touched) dismissHints(); }, { passive:true });
+  $('more').addEventListener('click', () => {
+    const b = $('cards'), step = (b.querySelector('.card') || {}).offsetHeight || 400;
+    try { b.scrollBy({ top: step + 24, behavior:'smooth' }); } catch(e){ b.scrollTop += step + 24; }
+  });
+}
+
+/* ---- render loop ---- */
+function render(){
+  const ms = laneMarkets(), nowT = Date.now();
+  const close = ms.length ? Math.min.apply(null, ms.map(m => m.close)) : nextClose(nowT);
+  $('cdl').textContent = fill(C.left, { t: mmss(close - nowT) });
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('on', t.dataset.lane === lane));
+  syncCards();
+  updateCards(Date.now());
+  renderSheet();
+  updateMore();
+  placeHints();
+}
+
+whenReady(function(){
+  initSample();
+  buildStatic();
+  render();
+  scaleStage();
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(scaleStage);
+
+  setInterval(function(){
+    if (!isLive) tickSample(Date.now());
+    render();
+  }, 1000);
+
+  if (CONFIG.FEED.url){
+    const pull = () => fetchLive().then(render).catch(function(){ /* keep last good data */ });
+    pull(); setInterval(pull, CONFIG.FEED.refreshMs);
+  }
+});
+</script>
+</body>
+</html>
