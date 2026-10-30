@@ -1,3 +1,6 @@
 node_modules/
 .DS_Store
 *.log
+
+# built by the workflow and deployed from an artifact, not committed
+docs/*.json
