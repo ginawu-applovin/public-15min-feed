@@ -34,6 +34,13 @@ on:
     # contended minute, so it is offset to :17. A run lasts ~5.5h, so a
     # 3-hourly tick lands while one is active, queues as its successor, and
     # takes over the moment it ends.
+    #
+    # CONFIRMED 2026-10-30: run 41019853995 (scheduled 07:24) ran to its
+    # deadline and completed; the tick delivered at 10:05 sat pending behind
+    # the concurrency group and took over with no gap in publishing. Over
+    # ~13 hours GitHub delivered 2 scheduled runs, neither on the `*/5`
+    # cadence -- which is all the restart needs, since each one only has to
+    # relight a 5.5-hour loop. The handoff is no longer theory.
     - cron: '*/5 * * * *'
     - cron: '17 */3 * * *'
   workflow_dispatch:
