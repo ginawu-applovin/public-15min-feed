@@ -46,6 +46,12 @@ const CATALOG = {
   GBPUSD:    { symbol:'GBPUSD', lane:'financials',  label:'GBP/USD',     name:'GBP/USD', unit:'fx', dp:5, sdp:4 }
 };
 
+// Windows close on fixed quarter-hour boundaries, so every market crosses this
+// line at once: a build landing inside it yields nothing and exits non-zero,
+// the workflow fails, and Pages keeps the previous deploy. That is the correct
+// outcome -- roughly one build in eight is skipped so none is misleading.
+const NEAR_CLOSE_SECONDS = 120;
+
 const LANES = ['crypto', 'commodities', 'financials'];
 const LANE_TAB = { crypto:'CRYPTO', commodities:'COMMODITIES', financials:'FINANCIALS' };
 
@@ -149,12 +155,23 @@ function toMarket(root, timeline, detail) {
   const tl  = o.timeline || {};
   const target = num(o.floorStrike);
 
+  const closeMs = Date.parse(tl.closeTime || detail.resolutionTime || '') || 0;
+  const secsToClose = closeMs ? (closeMs - Date.now()) / 1000 : Infinity;
+
   let reason = '';
   if (detail.halted) reason = 'halted';
   else if (detail.resolved) reason = 'resolved';
   else if (o.state !== 'STATE_OPEN') reason = 'state:' + (o.state || 'unknown');
   else if (!yes || num(yes.price) == null) reason = 'no_price';
   else if (target == null) reason = 'no_strike';
+  // A snapshot taken in the last two minutes of a window is poison. The odds
+  // have already collapsed toward settlement -- a real 99/1 -- and this file
+  // then serves for 10-25 minutes, presenting that as the state of a window
+  // that has since opened fresh. Observed live: BTC and ETH both served
+  // "Up 99% / Down 1%" into a brand new window. Refusing to publish it is
+  // better than publishing something confidently wrong; the previous file
+  // stays up and is closer to the truth.
+  else if (secsToClose < NEAR_CLOSE_SECONDS) reason = `near_close:${Math.round(secsToClose)}s`;
 
   // Past windows, oldest first. Each settled window's floorStrike is that
   // window's opening price, so the chain of them is a 15-minute price series.

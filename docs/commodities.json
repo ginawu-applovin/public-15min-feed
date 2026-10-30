@@ -1,8 +1,8 @@
 {
  "schema_version": 1,
  "source": "github_actions",
- "fetched_at": "2026-10-30T01:14:33.836Z",
- "expires_at": "2026-10-30T01:15:00.000Z",
+ "fetched_at": "2026-10-30T01:19:31.299Z",
+ "expires_at": "2026-10-30T01:30:00.000Z",
  "refresh_minutes": 5,
  "roots_published": 23,
  "total": 8,
@@ -11,7 +11,7 @@
  ],
  "markets": [
   {
-   "id": "brent-15-minutes-26oct292115",
+   "id": "brent-15-minutes-26oct292130",
    "root": "BRENT",
    "symbol": "BRENT",
    "lane": "commodities",
@@ -21,23 +21,19 @@
    "unit": "usd",
    "dp": 2,
    "sdp": 2,
-   "open_time": "2026-10-30T01:00:00Z",
-   "close_time": "2026-10-30T01:15:00Z",
-   "spot": 111.06,
-   "open": 111.06,
-   "target": 111.06,
+   "open_time": "2026-10-30T01:15:00Z",
+   "close_time": "2026-10-30T01:30:00Z",
+   "spot": 111.5,
+   "open": 111.5,
+   "target": 111.5,
    "spot_source": "window_open",
-   "up_price": 1,
-   "down_price": 0.01,
-   "bid": 0.99,
-   "ask": 1,
-   "volume": 10912.62,
+   "up_price": 0.47,
+   "down_price": 0.54,
+   "bid": 0.46,
+   "ask": 0.47,
+   "volume": 3186.32,
    "low_liquidity": false,
    "history": [
-    {
-     "t": "2026-10-30T00:15:00Z",
-     "v": 111.49
-    },
     {
      "t": "2026-10-30T00:30:00Z",
      "v": 111.38
@@ -49,13 +45,17 @@
     {
      "t": "2026-10-30T01:00:00Z",
      "v": 111.35
+    },
+    {
+     "t": "2026-10-30T01:15:00Z",
+     "v": 111.06
     }
    ],
    "eligible": true,
    "exclusion_reason": ""
   },
   {
-   "id": "copper-15-minutes-26oct292115",
+   "id": "copper-15-minutes-26oct292130",
    "root": "COPPER",
    "symbol": "COPPER",
    "lane": "commodities",
@@ -65,23 +65,19 @@
    "unit": "usd",
    "dp": 4,
    "sdp": 3,
-   "open_time": "2026-10-30T01:00:00Z",
-   "close_time": "2026-10-30T01:15:00Z",
-   "spot": 6.62999,
-   "open": 6.62999,
-   "target": 6.62999,
+   "open_time": "2026-10-30T01:15:00Z",
+   "close_time": "2026-10-30T01:30:00Z",
+   "spot": 6.6281,
+   "open": 6.6281,
+   "target": 6.6281,
    "spot_source": "window_open",
-   "up_price": 0.04,
-   "down_price": 0.98,
-   "bid": 0.02,
-   "ask": 0.04,
-   "volume": 65743.42,
+   "up_price": 0.76,
+   "down_price": 0.27,
+   "bid": 0.73,
+   "ask": 0.76,
+   "volume": 3485.66,
    "low_liquidity": false,
    "history": [
-    {
-     "t": "2026-10-30T00:15:00Z",
-     "v": 6.66295
-    },
     {
      "t": "2026-10-30T00:30:00Z",
      "v": 6.63556
@@ -93,13 +89,17 @@
     {
      "t": "2026-10-30T01:00:00Z",
      "v": 6.63113
+    },
+    {
+     "t": "2026-10-30T01:15:00Z",
+     "v": 6.62999
     }
    ],
    "eligible": true,
    "exclusion_reason": ""
   },
   {
-   "id": "gold-15-minutes-26oct292115",
+   "id": "gold-15-minutes-26oct292130",
    "root": "GOLD",
    "symbol": "GOLD",
    "lane": "commodities",
@@ -109,23 +109,19 @@
    "unit": "usd",
    "dp": 2,
    "sdp": 0,
-   "open_time": "2026-10-30T01:00:00Z",
-   "close_time": "2026-10-30T01:15:00Z",
-   "spot": 4004.88,
-   "open": 4004.88,
-   "target": 4004.88,
+   "open_time": "2026-10-30T01:15:00Z",
+   "close_time": "2026-10-30T01:30:00Z",
+   "spot": 4001.28,
+   "open": 4001.28,
+   "target": 4001.28,
    "spot_source": "window_open",
-   "up_price": 0.003,
-   "down_price": 0.998,
-   "bid": 0.002,
-   "ask": 0.003,
-   "volume": 740384.84,
+   "up_price": 0.73,
+   "down_price": 0.28,
+   "bid": 0.72,
+   "ask": 0.73,
+   "volume": 173439.68,
    "low_liquidity": false,
    "history": [
-    {
-     "t": "2026-10-30T00:15:00Z",
-     "v": 4008.01
-    },
     {
      "t": "2026-10-30T00:30:00Z",
      "v": 4009.73
@@ -137,13 +133,17 @@
     {
      "t": "2026-10-30T01:00:00Z",
      "v": 4016.16
+    },
+    {
+     "t": "2026-10-30T01:15:00Z",
+     "v": 4004.88
     }
    ],
    "eligible": true,
    "exclusion_reason": ""
   },
   {
-   "id": "natgas-15-minutes-26oct292115",
+   "id": "natgas-15-minutes-26oct292130",
    "root": "NATGAS",
    "symbol": "NG",
    "lane": "commodities",
@@ -153,23 +153,19 @@
    "unit": "usd",
    "dp": 3,
    "sdp": 2,
-   "open_time": "2026-10-30T01:00:00Z",
-   "close_time": "2026-10-30T01:15:00Z",
-   "spot": 2.89322,
-   "open": 2.89322,
-   "target": 2.89322,
+   "open_time": "2026-10-30T01:15:00Z",
+   "close_time": "2026-10-30T01:30:00Z",
+   "spot": 2.89578,
+   "open": 2.89578,
+   "target": 2.89578,
    "spot_source": "window_open",
-   "up_price": 1,
-   "down_price": 0.01,
-   "bid": 0.99,
-   "ask": 1,
-   "volume": 32316.76,
+   "up_price": 0.65,
+   "down_price": 0.39,
+   "bid": 0.61,
+   "ask": 0.65,
+   "volume": 3843.68,
    "low_liquidity": false,
    "history": [
-    {
-     "t": "2026-10-30T00:15:00Z",
-     "v": 2.89757
-    },
     {
      "t": "2026-10-30T00:30:00Z",
      "v": 2.89343
@@ -181,13 +177,17 @@
     {
      "t": "2026-10-30T01:00:00Z",
      "v": 2.89533
+    },
+    {
+     "t": "2026-10-30T01:15:00Z",
+     "v": 2.89322
     }
    ],
    "eligible": true,
    "exclusion_reason": ""
   },
   {
-   "id": "palladium-15-minutes-26oct292115",
+   "id": "palladium-15-minutes-26oct292130",
    "root": "PALLADIUM",
    "symbol": "PALL",
    "lane": "commodities",
@@ -197,23 +197,19 @@
    "unit": "usd",
    "dp": 2,
    "sdp": 0,
-   "open_time": "2026-10-30T01:00:00Z",
-   "close_time": "2026-10-30T01:15:00Z",
-   "spot": 1003.525,
-   "open": 1003.525,
-   "target": 1003.525,
+   "open_time": "2026-10-30T01:15:00Z",
+   "close_time": "2026-10-30T01:30:00Z",
+   "spot": 990.047,
+   "open": 990.047,
+   "target": 990.047,
    "spot_source": "window_open",
-   "up_price": 0.01,
-   "down_price": 1,
-   "bid": 0,
-   "ask": 0.01,
-   "volume": 12337.2,
+   "up_price": 0.74,
+   "down_price": 0.3,
+   "bid": 0.7,
+   "ask": 0.74,
+   "volume": 1396.54,
    "low_liquidity": false,
    "history": [
-    {
-     "t": "2026-10-30T00:15:00Z",
-     "v": 1003.11
-    },
     {
      "t": "2026-10-30T00:30:00Z",
      "v": 1002.224
@@ -225,13 +221,17 @@
     {
      "t": "2026-10-30T01:00:00Z",
      "v": 1006.751
+    },
+    {
+     "t": "2026-10-30T01:15:00Z",
+     "v": 1003.525
     }
    ],
    "eligible": true,
    "exclusion_reason": ""
   },
   {
-   "id": "platinum-15-minutes-26oct292115",
+   "id": "platinum-15-minutes-26oct292130",
    "root": "PLATINUM",
    "symbol": "PLAT",
    "lane": "commodities",
@@ -241,23 +241,19 @@
    "unit": "usd",
    "dp": 2,
    "sdp": 0,
-   "open_time": "2026-10-30T01:00:00Z",
-   "close_time": "2026-10-30T01:15:00Z",
-   "spot": 1487.582,
-   "open": 1487.582,
-   "target": 1487.582,
+   "open_time": "2026-10-30T01:15:00Z",
+   "close_time": "2026-10-30T01:30:00Z",
+   "spot": 1468.092,
+   "open": 1468.092,
+   "target": 1468.092,
    "spot_source": "window_open",
-   "up_price": 0.01,
-   "down_price": 1,
-   "bid": 0,
-   "ask": 0.01,
-   "volume": 28342.16,
+   "up_price": 0.81,
+   "down_price": 0.23,
+   "bid": 0.77,
+   "ask": 0.81,
+   "volume": 3329.96,
    "low_liquidity": false,
    "history": [
-    {
-     "t": "2026-10-30T00:15:00Z",
-     "v": 1484.185
-    },
     {
      "t": "2026-10-30T00:30:00Z",
      "v": 1484.93
@@ -269,13 +265,17 @@
     {
      "t": "2026-10-30T01:00:00Z",
      "v": 1492.498
+    },
+    {
+     "t": "2026-10-30T01:15:00Z",
+     "v": 1487.582
     }
    ],
    "eligible": true,
    "exclusion_reason": ""
   },
   {
-   "id": "silver-15-minutes-26oct292115",
+   "id": "silver-15-minutes-26oct292130",
    "root": "SILVER",
    "symbol": "SILVER",
    "lane": "commodities",
@@ -285,23 +285,19 @@
    "unit": "usd",
    "dp": 3,
    "sdp": 2,
-   "open_time": "2026-10-30T01:00:00Z",
-   "close_time": "2026-10-30T01:15:00Z",
-   "spot": 51.791,
-   "open": 51.791,
-   "target": 51.791,
+   "open_time": "2026-10-30T01:15:00Z",
+   "close_time": "2026-10-30T01:30:00Z",
+   "spot": 51.271,
+   "open": 51.271,
+   "target": 51.271,
    "spot_source": "window_open",
-   "up_price": 0.001,
-   "down_price": 1,
-   "bid": 0,
-   "ask": 0.001,
-   "volume": 329489.14,
+   "up_price": 0.86,
+   "down_price": 0.16,
+   "bid": 0.84,
+   "ask": 0.86,
+   "volume": 30011.24,
    "low_liquidity": false,
    "history": [
-    {
-     "t": "2026-10-30T00:15:00Z",
-     "v": 51.939
-    },
     {
      "t": "2026-10-30T00:30:00Z",
      "v": 51.948
@@ -313,13 +309,17 @@
     {
      "t": "2026-10-30T01:00:00Z",
      "v": 52.028
+    },
+    {
+     "t": "2026-10-30T01:15:00Z",
+     "v": 51.791
     }
    ],
    "eligible": true,
    "exclusion_reason": ""
   },
   {
-   "id": "wti-15-minutes-26oct292115",
+   "id": "wti-15-minutes-26oct292130",
    "root": "WTI",
    "symbol": "WTI",
    "lane": "commodities",
@@ -329,23 +329,19 @@
    "unit": "usd",
    "dp": 2,
    "sdp": 2,
-   "open_time": "2026-10-30T01:00:00Z",
-   "close_time": "2026-10-30T01:15:00Z",
-   "spot": 102.46,
-   "open": 102.46,
-   "target": 102.46,
+   "open_time": "2026-10-30T01:15:00Z",
+   "close_time": "2026-10-30T01:30:00Z",
+   "spot": 102.75,
+   "open": 102.75,
+   "target": 102.75,
    "spot_source": "window_open",
-   "up_price": 1,
-   "down_price": 0.001,
-   "bid": 0.999,
-   "ask": 1,
-   "volume": 156864.94,
+   "up_price": 0.4,
+   "down_price": 0.61,
+   "bid": 0.39,
+   "ask": 0.4,
+   "volume": 33068.42,
    "low_liquidity": false,
    "history": [
-    {
-     "t": "2026-10-30T00:15:00Z",
-     "v": 102.86
-    },
     {
      "t": "2026-10-30T00:30:00Z",
      "v": 102.7
@@ -357,6 +353,10 @@
     {
      "t": "2026-10-30T01:00:00Z",
      "v": 102.7
+    },
+    {
+     "t": "2026-10-30T01:15:00Z",
+     "v": 102.46
     }
    ],
    "eligible": true,

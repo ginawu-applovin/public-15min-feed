@@ -1,8 +1,8 @@
 {
  "schema_version": 1,
  "source": "github_actions",
- "fetched_at": "2026-10-30T01:14:33.836Z",
- "expires_at": "2026-10-30T01:15:00.000Z",
+ "fetched_at": "2026-10-30T01:19:31.299Z",
+ "expires_at": "2026-10-30T01:30:00.000Z",
  "refresh_minutes": 5,
  "roots_published": 23,
  "total": 9,
@@ -11,7 +11,7 @@
  ],
  "markets": [
   {
-   "id": "bnb-15-minutes-26oct292115",
+   "id": "bnb-15-minutes-26oct292130",
    "root": "BNB",
    "symbol": "BNB",
    "lane": "crypto",
@@ -21,23 +21,19 @@
    "unit": "usd",
    "dp": 2,
    "sdp": 0,
-   "open_time": "2026-10-30T01:00:00Z",
-   "close_time": "2026-10-30T01:15:00Z",
-   "spot": 695.22,
-   "open": 695.22,
-   "target": 695.22,
+   "open_time": "2026-10-30T01:15:00Z",
+   "close_time": "2026-10-30T01:30:00Z",
+   "spot": 702.67,
+   "open": 702.67,
+   "target": 702.67,
    "spot_source": "window_open",
-   "up_price": 1,
-   "down_price": 0.001,
-   "bid": 0.999,
-   "ask": 1,
-   "volume": 48300.98,
+   "up_price": 0.17,
+   "down_price": 0.85,
+   "bid": 0.15,
+   "ask": 0.17,
+   "volume": 3001.4,
    "low_liquidity": false,
    "history": [
-    {
-     "t": "2026-10-30T00:15:00Z",
-     "v": 697.04
-    },
     {
      "t": "2026-10-30T00:30:00Z",
      "v": 693.75
@@ -49,13 +45,17 @@
     {
      "t": "2026-10-30T01:00:00Z",
      "v": 689.6
+    },
+    {
+     "t": "2026-10-30T01:15:00Z",
+     "v": 695.22
     }
    ],
    "eligible": true,
    "exclusion_reason": ""
   },
   {
-   "id": "btc-15-minutes-26oct292115",
+   "id": "btc-15-minutes-26oct292130",
    "root": "BTC",
    "symbol": "BTC",
    "lane": "crypto",
@@ -65,23 +65,19 @@
    "unit": "usd",
    "dp": 2,
    "sdp": 0,
-   "open_time": "2026-10-30T01:00:00Z",
-   "close_time": "2026-10-30T01:15:00Z",
-   "spot": 77079.73,
-   "open": 77079.73,
-   "target": 77079.73,
+   "open_time": "2026-10-30T01:15:00Z",
+   "close_time": "2026-10-30T01:30:00Z",
+   "spot": 77148.62,
+   "open": 77148.62,
+   "target": 77148.62,
    "spot_source": "window_open",
-   "up_price": 1,
-   "down_price": 0.001,
-   "bid": 0.999,
-   "ask": 1,
-   "volume": 8799078.68,
+   "up_price": 0.13,
+   "down_price": 0.88,
+   "bid": 0.12,
+   "ask": 0.13,
+   "volume": 1959973.26,
    "low_liquidity": false,
    "history": [
-    {
-     "t": "2026-10-30T00:15:00Z",
-     "v": 77763.25
-    },
     {
      "t": "2026-10-30T00:30:00Z",
      "v": 77679.24
@@ -93,13 +89,17 @@
     {
      "t": "2026-10-30T01:00:00Z",
      "v": 76914.58
+    },
+    {
+     "t": "2026-10-30T01:15:00Z",
+     "v": 77079.73
     }
    ],
    "eligible": true,
    "exclusion_reason": ""
   },
   {
-   "id": "doge-15-minutes-26oct292115",
+   "id": "doge-15-minutes-26oct292130",
    "root": "DOGE",
    "symbol": "DOGE",
    "lane": "crypto",
@@ -109,23 +109,19 @@
    "unit": "usd",
    "dp": 5,
    "sdp": 3,
-   "open_time": "2026-10-30T01:00:00Z",
-   "close_time": "2026-10-30T01:15:00Z",
-   "spot": 0.074197,
-   "open": 0.074197,
-   "target": 0.074197,
+   "open_time": "2026-10-30T01:15:00Z",
+   "close_time": "2026-10-30T01:30:00Z",
+   "spot": 0.074481,
+   "open": 0.074481,
+   "target": 0.074481,
    "spot_source": "window_open",
-   "up_price": 1,
-   "down_price": 0.001,
-   "bid": 0.999,
-   "ask": 1,
-   "volume": 140518.92,
+   "up_price": 0.15,
+   "down_price": 0.86,
+   "bid": 0.14,
+   "ask": 0.15,
+   "volume": 15319.84,
    "low_liquidity": false,
    "history": [
-    {
-     "t": "2026-10-30T00:15:00Z",
-     "v": 0.075124
-    },
     {
      "t": "2026-10-30T00:30:00Z",
      "v": 0.075032
@@ -137,13 +133,17 @@
     {
      "t": "2026-10-30T01:00:00Z",
      "v": 0.073669
+    },
+    {
+     "t": "2026-10-30T01:15:00Z",
+     "v": 0.074197
     }
    ],
    "eligible": true,
    "exclusion_reason": ""
   },
   {
-   "id": "eth-15-minutes-26oct292115",
+   "id": "eth-15-minutes-26oct292130",
    "root": "ETH",
    "symbol": "ETH",
    "lane": "crypto",
@@ -153,23 +153,19 @@
    "unit": "usd",
    "dp": 2,
    "sdp": 0,
-   "open_time": "2026-10-30T01:00:00Z",
-   "close_time": "2026-10-30T01:15:00Z",
-   "spot": 2219.65,
-   "open": 2219.65,
-   "target": 2219.65,
+   "open_time": "2026-10-30T01:15:00Z",
+   "close_time": "2026-10-30T01:30:00Z",
+   "spot": 2223.07,
+   "open": 2223.07,
+   "target": 2223.07,
    "spot_source": "window_open",
-   "up_price": 1,
-   "down_price": 0.001,
-   "bid": 0.999,
-   "ask": 1,
-   "volume": 558227.68,
+   "up_price": 0.12,
+   "down_price": 0.89,
+   "bid": 0.11,
+   "ask": 0.12,
+   "volume": 72310.38,
    "low_liquidity": false,
    "history": [
-    {
-     "t": "2026-10-30T00:15:00Z",
-     "v": 2249.41
-    },
     {
      "t": "2026-10-30T00:30:00Z",
      "v": 2241.31
@@ -181,13 +177,17 @@
     {
      "t": "2026-10-30T01:00:00Z",
      "v": 2209.54
+    },
+    {
+     "t": "2026-10-30T01:15:00Z",
+     "v": 2219.65
     }
    ],
    "eligible": true,
    "exclusion_reason": ""
   },
   {
-   "id": "hype-15-minutes-26oct292115",
+   "id": "hype-15-minutes-26oct292130",
    "root": "HYPE",
    "symbol": "HYPE",
    "lane": "crypto",
@@ -197,23 +197,19 @@
    "unit": "usd",
    "dp": 2,
    "sdp": 0,
-   "open_time": "2026-10-30T01:00:00Z",
-   "close_time": "2026-10-30T01:15:00Z",
-   "spot": 91.5561,
-   "open": 91.5561,
-   "target": 91.5561,
+   "open_time": "2026-10-30T01:15:00Z",
+   "close_time": "2026-10-30T01:30:00Z",
+   "spot": 91.0003,
+   "open": 91.0003,
+   "target": 91.0003,
    "spot_source": "window_open",
-   "up_price": 0.001,
-   "down_price": 1,
-   "bid": 0,
-   "ask": 0.001,
-   "volume": 62588.1,
+   "up_price": 0.04,
+   "down_price": 0.967,
+   "bid": 0.033,
+   "ask": 0.04,
+   "volume": 17578.74,
    "low_liquidity": false,
    "history": [
-    {
-     "t": "2026-10-30T00:15:00Z",
-     "v": 88.9088
-    },
     {
      "t": "2026-10-30T00:30:00Z",
      "v": 89.4197
@@ -225,13 +221,17 @@
     {
      "t": "2026-10-30T01:00:00Z",
      "v": 90.1292
+    },
+    {
+     "t": "2026-10-30T01:15:00Z",
+     "v": 91.5561
     }
    ],
    "eligible": true,
    "exclusion_reason": ""
   },
   {
-   "id": "near-15-minutes-26oct292115",
+   "id": "near-15-minutes-26oct292130",
    "root": "NEAR",
    "symbol": "NEAR",
    "lane": "crypto",
@@ -241,23 +241,19 @@
    "unit": "usd",
    "dp": 4,
    "sdp": 2,
-   "open_time": "2026-10-30T01:00:00Z",
-   "close_time": "2026-10-30T01:15:00Z",
-   "spot": 3.9985,
-   "open": 3.9985,
-   "target": 3.9985,
+   "open_time": "2026-10-30T01:15:00Z",
+   "close_time": "2026-10-30T01:30:00Z",
+   "spot": 4.0345,
+   "open": 4.0345,
+   "target": 4.0345,
    "spot_source": "window_open",
-   "up_price": 1,
-   "down_price": 0.001,
-   "bid": 0.999,
-   "ask": 1,
-   "volume": 49800.48,
+   "up_price": 0.18,
+   "down_price": 0.83,
+   "bid": 0.17,
+   "ask": 0.18,
+   "volume": 4857.14,
    "low_liquidity": false,
    "history": [
-    {
-     "t": "2026-10-30T00:15:00Z",
-     "v": 4.0527
-    },
     {
      "t": "2026-10-30T00:30:00Z",
      "v": 4.0406
@@ -269,13 +265,17 @@
     {
      "t": "2026-10-30T01:00:00Z",
      "v": 3.9617
+    },
+    {
+     "t": "2026-10-30T01:15:00Z",
+     "v": 3.9985
     }
    ],
    "eligible": true,
    "exclusion_reason": ""
   },
   {
-   "id": "sol-15-minutes-26oct292115",
+   "id": "sol-15-minutes-26oct292130",
    "root": "SOL",
    "symbol": "SOL",
    "lane": "crypto",
@@ -285,23 +285,19 @@
    "unit": "usd",
    "dp": 2,
    "sdp": 0,
-   "open_time": "2026-10-30T01:00:00Z",
-   "close_time": "2026-10-30T01:15:00Z",
-   "spot": 94.7245,
-   "open": 94.7245,
-   "target": 94.7245,
+   "open_time": "2026-10-30T01:15:00Z",
+   "close_time": "2026-10-30T01:30:00Z",
+   "spot": 94.7118,
+   "open": 94.7118,
+   "target": 94.7118,
    "spot_source": "window_open",
-   "up_price": 0.81,
-   "down_price": 0.21,
-   "bid": 0.79,
-   "ask": 0.81,
-   "volume": 192265.18,
+   "up_price": 0.088,
+   "down_price": 0.915,
+   "bid": 0.085,
+   "ask": 0.088,
+   "volume": 50499.54,
    "low_liquidity": false,
    "history": [
-    {
-     "t": "2026-10-30T00:15:00Z",
-     "v": 95.4083
-    },
     {
      "t": "2026-10-30T00:30:00Z",
      "v": 95.2428
@@ -313,13 +309,17 @@
     {
      "t": "2026-10-30T01:00:00Z",
      "v": 93.7117
+    },
+    {
+     "t": "2026-10-30T01:15:00Z",
+     "v": 94.7245
     }
    ],
    "eligible": true,
    "exclusion_reason": ""
   },
   {
-   "id": "xrp-15-minutes-26oct292115",
+   "id": "xrp-15-minutes-26oct292130",
    "root": "XRP",
    "symbol": "XRP",
    "lane": "crypto",
@@ -329,23 +329,19 @@
    "unit": "usd",
    "dp": 4,
    "sdp": 2,
-   "open_time": "2026-10-30T01:00:00Z",
-   "close_time": "2026-10-30T01:15:00Z",
-   "spot": 1.2227,
-   "open": 1.2227,
-   "target": 1.2227,
+   "open_time": "2026-10-30T01:15:00Z",
+   "close_time": "2026-10-30T01:30:00Z",
+   "spot": 1.2204,
+   "open": 1.2204,
+   "target": 1.2204,
    "spot_source": "window_open",
-   "up_price": 0.001,
-   "down_price": 1,
-   "bid": 0,
-   "ask": 0.001,
-   "volume": 216416.44,
+   "up_price": 0.16,
+   "down_price": 0.86,
+   "bid": 0.14,
+   "ask": 0.16,
+   "volume": 44486.02,
    "low_liquidity": false,
    "history": [
-    {
-     "t": "2026-10-30T00:15:00Z",
-     "v": 1.2352
-    },
     {
      "t": "2026-10-30T00:30:00Z",
      "v": 1.2338
@@ -357,13 +353,17 @@
     {
      "t": "2026-10-30T01:00:00Z",
      "v": 1.2144
+    },
+    {
+     "t": "2026-10-30T01:15:00Z",
+     "v": 1.2227
     }
    ],
    "eligible": true,
    "exclusion_reason": ""
   },
   {
-   "id": "zec-15-minutes-26oct292115",
+   "id": "zec-15-minutes-26oct292130",
    "root": "ZEC",
    "symbol": "ZEC",
    "lane": "crypto",
@@ -373,23 +373,19 @@
    "unit": "usd",
    "dp": 2,
    "sdp": 0,
-   "open_time": "2026-10-30T01:00:00Z",
-   "close_time": "2026-10-30T01:15:00Z",
-   "spot": 1229.7186,
-   "open": 1229.7186,
-   "target": 1229.7186,
+   "open_time": "2026-10-30T01:15:00Z",
+   "close_time": "2026-10-30T01:30:00Z",
+   "spot": 1228.7218,
+   "open": 1228.7218,
+   "target": 1228.7218,
    "spot_source": "window_open",
-   "up_price": 0.14,
-   "down_price": 0.87,
-   "bid": 0.13,
-   "ask": 0.14,
-   "volume": 98567.1,
+   "up_price": 0.1,
+   "down_price": 0.91,
+   "bid": 0.09,
+   "ask": 0.1,
+   "volume": 4412.12,
    "low_liquidity": false,
    "history": [
-    {
-     "t": "2026-10-30T00:15:00Z",
-     "v": 1219.6294
-    },
     {
      "t": "2026-10-30T00:30:00Z",
      "v": 1224.737
@@ -401,6 +397,10 @@
     {
      "t": "2026-10-30T01:00:00Z",
      "v": 1221.6408
+    },
+    {
+     "t": "2026-10-30T01:15:00Z",
+     "v": 1229.7186
     }
    ],
    "eligible": true,
