@@ -7,20 +7,19 @@ name: refresh feed
 # a public repo. High-frequency schedules are deprioritised hard and the docs
 # only promise "may be delayed". A 15-minute market cannot wait on that.
 #
-# The obvious fix -- have each run dispatch its successor -- is not available:
-# GitHub refuses to start a workflow from an action authenticated with
-# GITHUB_TOKEN, specifically to prevent recursion. The alternative is a
-# personal access token in repo secrets, which is a standing write credential
-# parked in a public repo, and not worth it for this.
+# Having each run dispatch its successor is not available: GitHub refuses to
+# start a workflow from an action authenticated with GITHUB_TOKEN, to prevent
+# recursion. The alternative is a personal access token sitting in a public
+# repo's secrets, which is a standing write credential and not worth it here.
 #
 # So one run refreshes on its own clock for ~5.5 hours. The schedule below is
 # no longer the cadence; it is only a seed. With `cancel-in-progress: false`,
-# any tick that does land while a run is active becomes the queued successor
-# and starts the moment the current one ends. GitHub keeps at most one pending
-# run per concurrency group, so ticks cannot pile up.
+# a tick that lands while a run is active becomes the queued successor and
+# starts when the current one ends. GitHub keeps at most one pending run per
+# concurrency group, so ticks cannot pile up.
 #
 # Kill switch: set the repo variable LOOP to `off` and each run does a single
-# pass and exits. No code change, no cancel needed.
+# pass and exits.
 
 on:
   schedule:
@@ -34,11 +33,11 @@ on:
       - '.github/workflows/refresh.yml'
 
 permissions:
-  contents: write             # force-pushes the built feed to the `feed` branch
+  contents: write             # pushes the built feed to the `feed` branch
 
 concurrency:
   group: feed-refresh
-  cancel-in-progress: false   # a landing tick queues behind the running loop
+  cancel-in-progress: false
 
 jobs:
   refresh:
@@ -55,71 +54,86 @@ jobs:
         env:
           SHEET_ID: ${{ vars.SHEET_ID }}
           LOOP: ${{ vars.LOOP }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           set -u
           INTERVAL=300
-          # Leaves a margin under timeout-minutes so the job ends by finishing,
-          # not by being killed mid-push.
           DEADLINE=$(( $(date +%s) + 330*60 ))
 
           git config user.name  "feed bot"
           git config user.email "noreply@github.com"
 
-          # Published output lives on its own branch so main keeps a readable
-          # history. Orphan + amend + force-push keeps that branch at exactly
-          # one commit instead of ~66 per run.
-          git switch --orphan feed
-          FIRST=1
+          # The published commit is built with plumbing, never by switching
+          # branches. An earlier version used `git switch --orphan feed`, which
+          # removes every tracked file from the working tree -- so the next
+          # iteration could not find scripts/fetch_feed.mjs, every build failed
+          # to start, and the loop span for 11 minutes publishing nothing. The
+          # working tree now stays exactly as checked out.
+          #
+          # read-tree --empty + add + write-tree + commit-tree produces a
+          # parentless commit containing only docs/, so the `feed` branch stays
+          # at a single commit instead of growing ~66 per run.
+          publish() {
+            local msg="$1"
+            export GIT_INDEX_FILE="$RUNNER_TEMP/feed.index"
+            rm -f "$GIT_INDEX_FILE"
+            git read-tree --empty
+            git add -f docs
+            local tree commit
+            tree=$(git write-tree)
+            commit=$(git commit-tree "$tree" -m "$msg")
+            unset GIT_INDEX_FILE
+            git push -q -f origin "$commit:refs/heads/feed"
+          }
+
+          # Written every pass, published even when the build is refused, so a
+          # refusal is visible on the live site instead of only in a log that
+          # does not flush until this step ends ~5.5 hours from now.
+          status() {
+            printf '{"last_attempt":"%s","outcome":"%s","reason":"%s","published":%s,"refused":%s,"run":"%s"}\n' \
+              "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$1" "$2" "$PUBLISHED" "$REFUSED" "$RUN_URL" \
+              > docs/status.json
+          }
+
           PUBLISHED=0
           REFUSED=0
 
           while :; do
-            if node scripts/fetch_feed.mjs --out docs; then
-              git add -f docs
-              if git diff --cached --quiet; then
-                echo "no change, nothing to push"
-              else
-                if [ "$FIRST" = "1" ]; then
-                  git commit -q -m "feed @ $(date -u +%Y-%m-%dT%H:%MZ)"
-                  FIRST=0
-                else
-                  git commit -q --amend -m "feed @ $(date -u +%Y-%m-%dT%H:%MZ)"
-                fi
-                git push -q -f origin feed
-                PUBLISHED=$((PUBLISHED+1))
-                echo "published (#$PUBLISHED)"
-              fi
+            if OUT=$(node scripts/fetch_feed.mjs --out docs 2>&1); then
+              PUBLISHED=$((PUBLISHED+1))
+              status ok ""
+              publish "feed @ $(date -u +%Y-%m-%dT%H:%MZ)"
+              echo "$(date -u +%H:%M:%SZ) published #$PUBLISHED"
             else
               # Expected several times an hour: near a close every market is
               # excluded at once, just after one the API has no current event,
-              # and for a while after that the targets read "TBD". The guards
-              # in fetch_feed.mjs refuse all three. The previous push stays up.
+              # and for the first minutes of a window the targets read "TBD".
+              # docs/ still holds the last good feed, so this republishes it
+              # together with a fresh status.json.
               REFUSED=$((REFUSED+1))
-              echo "::notice::build refused (#$REFUSED) -- previous feed stays live"
+              REASON=$(printf '%s' "$OUT" | grep -o 'refusing to publish -- [^"]*' | head -1 | cut -c25- | tr -d '"')
+              status refused "${REASON:-unknown}"
+              publish "status @ $(date -u +%Y-%m-%dT%H:%MZ)"
+              echo "$(date -u +%H:%M:%SZ) refused #$REFUSED: ${REASON:-unknown}"
             fi
 
-            if [ "${LOOP:-}" = "off" ]; then
-              echo "::notice::LOOP=off -- single pass, exiting"
-              break
-            fi
+            if [ "${LOOP:-}" = "off" ]; then echo "LOOP=off, exiting"; break; fi
             NOW=$(date +%s)
-            if [ "$NOW" -ge "$DEADLINE" ]; then
-              echo "::notice::deadline reached -- exiting so the queued run takes over"
-              break
-            fi
-            # Don't overshoot the deadline mid-sleep.
             REMAIN=$(( DEADLINE - NOW ))
-            [ "$REMAIN" -lt "$INTERVAL" ] && break
+            [ "$REMAIN" -lt "$INTERVAL" ] && { echo "deadline reached"; break; }
             sleep "$INTERVAL"
           done
 
           echo "published $PUBLISHED · refused $REFUSED"
 
-      - name: Keep the chain alive
+      - name: Smoke test before the job ends
         if: always()
         run: |
-          # The loop ends on its deadline, on a crash, or on a cancel. Nothing
-          # here can start the next run -- GITHUB_TOKEN is barred from it -- so
-          # this only makes the gap visible rather than silent. The seed cron,
-          # or a manual dispatch, restarts it.
-          echo "::notice::loop ended. The next scheduled tick or a manual 'Run workflow' restarts it."
+          # Proves the published branch is loadable and self-consistent. Runs
+          # even on cancel, so a broken publish is caught here rather than by
+          # someone opening the ad.
+          set -e
+          U=https://ginawu-applovin.github.io/public-15min-feed
+          curl -sf --max-time 20 "$U/status.json" | tee /dev/stderr | \
+            node -e 'const s=JSON.parse(require("fs").readFileSync(0,"utf8"));
+                     if(!s.last_attempt) { console.error("no last_attempt"); process.exit(1); }'
