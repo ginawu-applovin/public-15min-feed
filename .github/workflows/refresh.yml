@@ -1,14 +1,31 @@
 name: refresh feed
 
-# Deploys straight to Pages from an artifact rather than committing the JSON.
-# At a 5-minute cadence a commit-per-refresh would be ~288 commits a day and
-# would bury every real change in the history.
+# WHY THIS IS A LOOP AND NOT A CRON
+#
+# GitHub's scheduler did not deliver a single `*/5` run in 33 minutes of
+# watching, with the workflow active, the cron valid, on the default branch of
+# a public repo. High-frequency schedules are deprioritised hard and the docs
+# only promise "may be delayed". A 15-minute market cannot wait on that.
+#
+# The obvious fix -- have each run dispatch its successor -- is not available:
+# GitHub refuses to start a workflow from an action authenticated with
+# GITHUB_TOKEN, specifically to prevent recursion. The alternative is a
+# personal access token in repo secrets, which is a standing write credential
+# parked in a public repo, and not worth it for this.
+#
+# So one run refreshes on its own clock for ~5.5 hours. The schedule below is
+# no longer the cadence; it is only a seed. With `cancel-in-progress: false`,
+# any tick that does land while a run is active becomes the queued successor
+# and starts the moment the current one ends. GitHub keeps at most one pending
+# run per concurrency group, so ticks cannot pile up.
+#
+# Kill switch: set the repo variable LOOP to `off` and each run does a single
+# pass and exits. No code change, no cancel needed.
+
 on:
   schedule:
-    # Every 5 minutes is the floor GitHub allows. Read the staleness note in
-    # README before trying to make this faster -- the limit is not the cron.
-    - cron: '*/5 * * * *'
-  workflow_dispatch:        # "Run workflow" in the Actions tab, for a manual refresh
+    - cron: '*/5 * * * *'     # a seed, not the cadence -- see above
+  workflow_dispatch:
   push:
     branches: [main]
     paths:
@@ -17,22 +34,16 @@ on:
       - '.github/workflows/refresh.yml'
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write             # force-pushes the built feed to the `feed` branch
 
-# Let a running deploy finish; queue at most one behind it. Without this a slow
-# run and the next cron tick race each other onto Pages.
 concurrency:
-  group: pages
-  cancel-in-progress: false
+  group: feed-refresh
+  cancel-in-progress: false   # a landing tick queues behind the running loop
 
 jobs:
   refresh:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
+    timeout-minutes: 350
     steps:
       - uses: actions/checkout@v4
 
@@ -40,32 +51,75 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Build the feed
+      - name: Refresh loop
         env:
-          # Optional. Set it in Settings -> Secrets and variables -> Actions ->
-          # Variables to let the Google Sheet drive enable/disable and labels.
-          # Unset, the script's built-in catalog is used.
           SHEET_ID: ${{ vars.SHEET_ID }}
-        run: node scripts/fetch_feed.mjs --out docs
-
-      - name: Check what was built
+          LOOP: ${{ vars.LOOP }}
         run: |
-          node -e '
-            const f = require("./docs/feed.json");
-            if (!f.markets.length) { console.error("empty feed"); process.exit(1); }
-            const late = f.markets.filter(m => Date.parse(m.close_time) <= Date.now());
-            console.log(`${f.markets.length} markets, expires ${f.expires_at}`);
-            if (f.skipped.length) console.log(`skipped: ${f.skipped.join(" ")}`);
-            // A window that has already closed means this run was delayed past
-            // the whole window. Worth seeing in the log, not worth failing on:
-            // publishing a slightly late feed beats publishing nothing.
-            if (late.length) console.log(`::warning::${late.length} market(s) already past close_time`);
-          '
+          set -u
+          INTERVAL=300
+          # Leaves a margin under timeout-minutes so the job ends by finishing,
+          # not by being killed mid-push.
+          DEADLINE=$(( $(date +%s) + 330*60 ))
 
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          path: docs
+          git config user.name  "feed bot"
+          git config user.email "noreply@github.com"
 
-      - id: deploy
-        uses: actions/deploy-pages@v4
+          # Published output lives on its own branch so main keeps a readable
+          # history. Orphan + amend + force-push keeps that branch at exactly
+          # one commit instead of ~66 per run.
+          git switch --orphan feed
+          FIRST=1
+          PUBLISHED=0
+          REFUSED=0
+
+          while :; do
+            if node scripts/fetch_feed.mjs --out docs; then
+              git add -f docs
+              if git diff --cached --quiet; then
+                echo "no change, nothing to push"
+              else
+                if [ "$FIRST" = "1" ]; then
+                  git commit -q -m "feed @ $(date -u +%Y-%m-%dT%H:%MZ)"
+                  FIRST=0
+                else
+                  git commit -q --amend -m "feed @ $(date -u +%Y-%m-%dT%H:%MZ)"
+                fi
+                git push -q -f origin feed
+                PUBLISHED=$((PUBLISHED+1))
+                echo "published (#$PUBLISHED)"
+              fi
+            else
+              # Expected several times an hour: near a close every market is
+              # excluded at once, just after one the API has no current event,
+              # and for a while after that the targets read "TBD". The guards
+              # in fetch_feed.mjs refuse all three. The previous push stays up.
+              REFUSED=$((REFUSED+1))
+              echo "::notice::build refused (#$REFUSED) -- previous feed stays live"
+            fi
+
+            if [ "${LOOP:-}" = "off" ]; then
+              echo "::notice::LOOP=off -- single pass, exiting"
+              break
+            fi
+            NOW=$(date +%s)
+            if [ "$NOW" -ge "$DEADLINE" ]; then
+              echo "::notice::deadline reached -- exiting so the queued run takes over"
+              break
+            fi
+            # Don't overshoot the deadline mid-sleep.
+            REMAIN=$(( DEADLINE - NOW ))
+            [ "$REMAIN" -lt "$INTERVAL" ] && break
+            sleep "$INTERVAL"
+          done
+
+          echo "published $PUBLISHED · refused $REFUSED"
+
+      - name: Keep the chain alive
+        if: always()
+        run: |
+          # The loop ends on its deadline, on a crash, or on a cancel. Nothing
+          # here can start the next run -- GITHUB_TOKEN is barred from it -- so
+          # this only makes the gap visible rather than silent. The seed cron,
+          # or a manual dispatch, restarts it.
+          echo "::notice::loop ended. The next scheduled tick or a manual 'Run workflow' restarts it."
