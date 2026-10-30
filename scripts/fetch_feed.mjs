@@ -52,6 +52,11 @@ const CATALOG = {
 // outcome -- roughly one build in eight is skipped so none is misleading.
 const NEAR_CLOSE_SECONDS = 120;
 
+// Floor for publishing. Below this the board is too sparse to be worth showing
+// in place of a slightly older full one. Every lane must also be non-empty --
+// see the check in main().
+const MIN_MARKETS = 10;
+
 const LANES = ['crypto', 'commodities', 'financials'];
 
 const args = Object.fromEntries(
@@ -290,11 +295,30 @@ async function main() {
   // empty feed.json on disk -- harmless in the workflow, where the non-zero
   // exit stops the deploy, but it clobbers a good local copy and would publish
   // an empty feed the moment anyone added continue-on-error or `|| true`.
-  if (!markets.length) {
-    console.error(`\nno markets built -- refusing to write. skipped: ${skipped.join(' ')}`);
-    // Expected twice an hour or so: every window closes on the same
-    // quarter-hour boundary, so near the close the guard excludes them all,
-    // and for a few seconds after it the API reports no current event at all.
+  //
+  // A thin build is refused as firmly as an empty one. Publishing it would be
+  // worse than publishing nothing, because the creative renders one tab per
+  // lane: a feed with no crypto markets gives the ad an empty Crypto tab,
+  // which reads as broken. Keeping the previous deploy shows a board that is
+  // a few minutes old instead of a board with a hole in it.
+  //
+  // Observed causes, all transient and all expected:
+  //  - "Target price: TBD" -- the window is open and tradeable but Public has
+  //    not fixed its target yet, so there is nothing to render a card against
+  //  - approaching a close, the near-close guard excludes every market at once
+  //  - just after a close, the API reports no current event at all
+  const perLane = LANES.map(l => [l, markets.filter(m => m.lane === l).length]);
+  const emptyLanes = perLane.filter(([, n]) => n === 0).map(([l]) => l);
+  const tooThin = markets.length < MIN_MARKETS || emptyLanes.length > 0;
+
+  if (tooThin) {
+    const why = !markets.length ? 'built nothing'
+      : emptyLanes.length ? `empty lane(s): ${emptyLanes.join(', ')}`
+      : `only ${markets.length} markets, need ${MIN_MARKETS}`;
+    console.error(`\nrefusing to publish -- ${why}`);
+    console.error(`by lane: ${perLane.map(([l, n]) => l + ' ' + n).join(' · ')}`);
+    console.error(`skipped: ${skipped.join(' ')}`);
+    console.error('the previous deploy stays up; the next run should recover');
     process.exit(1);
   }
 
