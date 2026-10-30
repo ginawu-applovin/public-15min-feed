@@ -23,7 +23,19 @@ name: refresh feed
 
 on:
   schedule:
-    - cron: '*/5 * * * *'     # a seed, not the cadence -- see above
+    # Neither of these is the cadence; the loop is. They exist only to restart
+    # it after a run hits its deadline.
+    #
+    # Measured: in the 90 minutes after this workflow was created, GitHub
+    # delivered ZERO scheduled runs -- 8 runs, all push or workflow_dispatch.
+    # So `*/5` is kept on the chance it ever fires, and the real restart seed
+    # is the 3-hourly one below. GitHub's own guidance is that high-frequency
+    # schedules are deprioritised and that the top of the hour is the most
+    # contended minute, so it is offset to :17. A run lasts ~5.5h, so a
+    # 3-hourly tick lands while one is active, queues as its successor, and
+    # takes over the moment it ends.
+    - cron: '*/5 * * * *'
+    - cron: '17 */3 * * *'
   workflow_dispatch:
   push:
     branches: [main]
